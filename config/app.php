@@ -15,7 +15,18 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'DS-Ultimate'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Git secret
+    |--------------------------------------------------------------------------
+    |
+    | Changelog
+    |
+    */
+
+    'deploy_secret' => env('APP_DEPLOY_SECRET'),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,6 +54,60 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    'debug_blacklist' => [
+        '_ENV' => [
+            'APP_KEY',
+            'DB_PASSWORD',
+            'REDIS_PASSWORD',
+            'MAIL_PASSWORD',
+            'PUSHER_APP_KEY',
+            'PUSHER_APP_SECRET',
+            'CAPTCHA_SECRET',
+            'CAPTCHA_SITEKEY',
+            'APP_DEPLOY_SECRET',
+            'FACEBOOK_CLIENT_ID',
+            'FACEBOOK_CLIENT_SECRET',
+            'GOOGLE_CLIENT_ID',
+            'GOOGLE_CLIENT_SECRET',
+            'GITHUB_CLIENT_ID',
+            'GITHUB_CLIENT_SECRET',
+            'TWITTER_CLIENT_ID',
+            'TWITTER_CLIENT_SECRET',
+            'DISCORD_BOT_TOKEN',
+            'DISCORD_CLIENT_ID',
+            'DISCORD_CLIENT_SECRET',
+            'MATOMO_SECRET',
+        ],
+        '_SERVER' => [
+            'HTTP_AUTHORIZATION',
+            'REDIRECT_HTTP_AUTHORIZATION',
+            'APP_KEY',
+            'DB_PASSWORD',
+            'REDIS_PASSWORD',
+            'MAIL_PASSWORD',
+            'PUSHER_APP_KEY',
+            'PUSHER_APP_SECRET',
+            'CAPTCHA_SECRET',
+            'CAPTCHA_SITEKEY',
+            'APP_DEPLOY_SECRET',
+            'FACEBOOK_CLIENT_ID',
+            'FACEBOOK_CLIENT_SECRET',
+            'GOOGLE_CLIENT_ID',
+            'GOOGLE_CLIENT_SECRET',
+            'GITHUB_CLIENT_ID',
+            'GITHUB_CLIENT_SECRET',
+            'TWITTER_CLIENT_ID',
+            'TWITTER_CLIENT_SECRET',
+            'DISCORD_BOT_TOKEN',
+            'DISCORD_CLIENT_ID',
+            'DISCORD_CLIENT_SECRET',
+            'MATOMO_SECRET',
+        ],
+        '_POST' => [
+            'password',
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application URL
@@ -54,7 +119,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://ds-ultimate.de'),
 
     'asset_url' => env('ASSET_URL'),
 
@@ -69,7 +134,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Europe/Berlin',
 
     /*
     |--------------------------------------------------------------------------
@@ -82,7 +147,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'de',
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +160,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => (env('APP_DEBUG', false) ? '' : 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -194,7 +259,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
+        SocialiteProviders\Manager\ServiceProvider::class,
+        NotificationChannels\Discord\DiscordServiceProvider::class,
     ],
 
     /*
@@ -212,4 +278,14 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
 
+
+    /*
+     * Allowed keys for access to internal APIs
+     * a part of the API is considered internal if it is designed for other other developers
+     *  (not used directly on our site) and one of the following is true:
+     * - the API has no rate limit
+     * - the API is very resource intensive (multiple DB Queryies / execution time > 500ms)
+     */
+
+    'API_KEYS' => env('API_KEYS', ""),
 ];

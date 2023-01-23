@@ -2,8 +2,9 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Notifications\DiscordNotificationQueueElement;
 use Throwable;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -43,8 +44,31 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->reportable(function (Throwable $exception) {
+            $eMessage = $exception->getMessage();
+            $ignore = [
+                "Illuminate\\Auth\\AuthenticationException",
+                "Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException",
+                "Symfony\\Component\\HttpKernel\\Exception\\HttpException",
+                "Illuminate\\Session\\TokenMismatchException",
+                "Illuminate\\Database\\Eloquent\\ModelNotFoundException",
+                "Illuminate\\Validation\\ValidationException",
+                "NotificationChannels\\Discord\\Exceptions\\CouldNotSendNotification",
+                "Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException",
+                "Illuminate\\Http\\Exceptions\\ThrottleRequestsException",
+            ];
+
+            try {
+                if (!in_array(get_class($exception), $ignore) && $eMessage != '') {
+                    if (
+                        config('services.discord.active') === 'ignore' ||
+                        (config('services.discord.active') === true && config('app.debug') === false)
+                    ) {
+                        DiscordNotificationQueueElement::exception($exception);
+                    }
+                }
+            } catch (Exception $ex) {
+            }
         });
     }
 }

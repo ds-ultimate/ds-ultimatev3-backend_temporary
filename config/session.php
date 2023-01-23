@@ -46,7 +46,7 @@ return [
     |
     */
 
-    'encrypt' => false,
+    'encrypt' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -112,8 +112,10 @@ return [
     | happen on a given request. By default, the odds are 2 out of 100.
     |
     */
-
-    'lottery' => [2, 100],
+    
+    //we can use cron --> don't do this with requests!
+    //https://tideways.com/profiler/blog/php-session-garbage-collection-the-unknown-performance-bottleneck
+    'lottery' => [0, 100],
 
     /*
     |--------------------------------------------------------------------------
