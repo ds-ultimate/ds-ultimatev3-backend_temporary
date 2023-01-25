@@ -2,29 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Ally;
-use App\Changelog;
-use App\Conquer;
-use App\News;
-use App\Player;
-use App\Server;
-use App\Util\BasicFunctions;
-use App\World;
+use App\Models\Ally;
+use App\Models\Changelog;
+use App\Models\Conquer;
+use App\Models\News;
+use App\Models\Player;
+use App\Models\Server;
+use App\Models\World;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Response;
 
 class ContentAPIController extends Controller
 {
-    public function nav($server, $world=null){
-        $result = [
-            'server' => Server::getAndCheckServerByCode($server)->worlds,
-        ];
-        if($world !== null) {
-            $result['world'] = World::getAndCheckWorld($server, $world);
-        }
-        return Response::json($result);
-    }
-    
     public function index(){
         $serverArray = Server::getServer();
         $news = News::orderBy('order')->get();
@@ -32,6 +21,10 @@ class ContentAPIController extends Controller
             "severs" => $serverArray,
             "news" => $news,
         ]);
+    }
+    
+    public function serverGetWorlds($server){
+        return Response::json(Server::getAndCheckServerByCode($server, withWorlds: true)->worlds);
     }
 
     /*
@@ -152,8 +145,6 @@ class ContentAPIController extends Controller
         $changelogModel = new Changelog();
 
         $changelogs = $changelogModel->orderBy('created_at', 'DESC')->get();
-
-        BasicFunctions::changelogUpdate();
 
         $locale = in_array(App::getLocale(), config('dsUltimate.changelog_lang_key'))? App::getLocale() : 'en';
 

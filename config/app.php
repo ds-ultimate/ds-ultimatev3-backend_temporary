@@ -62,17 +62,11 @@ return [
             'MAIL_PASSWORD',
             'PUSHER_APP_KEY',
             'PUSHER_APP_SECRET',
-            'CAPTCHA_SECRET',
-            'CAPTCHA_SITEKEY',
             'APP_DEPLOY_SECRET',
-            'FACEBOOK_CLIENT_ID',
-            'FACEBOOK_CLIENT_SECRET',
             'GOOGLE_CLIENT_ID',
             'GOOGLE_CLIENT_SECRET',
             'GITHUB_CLIENT_ID',
             'GITHUB_CLIENT_SECRET',
-            'TWITTER_CLIENT_ID',
-            'TWITTER_CLIENT_SECRET',
             'DISCORD_BOT_TOKEN',
             'DISCORD_CLIENT_ID',
             'DISCORD_CLIENT_SECRET',
@@ -87,17 +81,11 @@ return [
             'MAIL_PASSWORD',
             'PUSHER_APP_KEY',
             'PUSHER_APP_SECRET',
-            'CAPTCHA_SECRET',
-            'CAPTCHA_SITEKEY',
             'APP_DEPLOY_SECRET',
-            'FACEBOOK_CLIENT_ID',
-            'FACEBOOK_CLIENT_SECRET',
             'GOOGLE_CLIENT_ID',
             'GOOGLE_CLIENT_SECRET',
             'GITHUB_CLIENT_ID',
             'GITHUB_CLIENT_SECRET',
-            'TWITTER_CLIENT_ID',
-            'TWITTER_CLIENT_SECRET',
             'DISCORD_BOT_TOKEN',
             'DISCORD_CLIENT_ID',
             'DISCORD_CLIENT_SECRET',
@@ -277,7 +265,6 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
-
 
     /*
      * Allowed keys for access to internal APIs

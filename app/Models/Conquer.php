@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Models;
+
+class Conquer extends CustomModel
+{
+    protected $table = 'conquer';
+    
+    protected $fillable = [
+        'village_id',
+        'timestamp',
+        'new_owner',
+        'old_owner',
+        'id',
+        'old_owner_name',
+        'new_owner_name',
+        'old_ally',
+        'new_ally',
+        'old_ally_name',
+        'new_ally_name',
+        'old_ally_tag',
+        'new_ally_tag',
+        'points',
+        'created_at',
+        'updated_at',
+    ];
+    
+    protected $defaultTableName = "conquer";
+
+    public function __construct($arg1 = [], $arg2 = null)
+    {
+        if($arg1 instanceof World && $arg2 == null) {
+            //allow calls without table name
+            $arg2 = $this->defaultTableName;
+        }
+        parent::__construct($arg1, $arg2);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function oldPlayer()
+    {
+        return $this->mybelongsTo(Player::class, 'old_owner', 'playerID', $this->getRelativeTable("player_latest"));
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function newPlayer()
+    {
+        return $this->mybelongsTo(Player::class, 'new_owner', 'playerID', $this->getRelativeTable("player_latest"));
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function oldAlly()
+    {
+        return $this->mybelongsTo(Ally::class, 'old_ally', 'allyID', $this->getRelativeTable("ally_latest"));
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function newAlly()
+    {
+        return $this->mybelongsTo(Ally::class, 'new_ally', 'allyID', $this->getRelativeTable("ally_latest"));
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function village()
+    {
+        return $this->mybelongsTo(Village::class, 'village_id', 'villageID', $this->getRelativeTable("village_latest"));
+    }
+
+    /**
+     * @param World $world
+     * @param int $playerID
+     * @return \Illuminate\Support\Collection
+     */
+    public static function playerConquerCounts(World $world, $playerID){
+        $conquerModel = new Conquer($world);
+
+        $conquer = [];
+        $conquer['old'] = $conquerModel->where([['old_owner', "=", $playerID],['new_owner', '!=', $playerID]])->count();
+        $conquer['new'] = $conquerModel->where([['old_owner', "!=", $playerID],['new_owner', '=', $playerID]])->count();
+        $conquer['own'] = $conquerModel->where([['old_owner', "=", $playerID],['new_owner', '=', $playerID]])->count();
+        $conquer['total'] = $conquer['old'] + $conquer['new'] + $conquer['own'];
+
+        return $conquer;
+    }
+
+    /**
+     * @param World $world
+     * @param int $allyID
+     * @return \Illuminate\Support\Collection
+     */
+    public static function allyConquerCounts(World $world, $allyID){
+        $conquerModel = new Conquer($world);
+        $playerModel = new Player($world);
+
+        $allyPlayers = array();
+        foreach ($playerModel->newQuery()->where('ally_id', $allyID)->get() as $player) {
+            $allyPlayers[] = $player->playerID;
+        }
+
+        $conquer = [];
+        $conquer['old'] = $conquerModel->whereIn('old_owner', $allyPlayers)->whereNotIn('new_owner', $allyPlayers)->count();
+        $conquer['new'] = $conquerModel->whereNotIn('old_owner', $allyPlayers)->whereIn('new_owner', $allyPlayers)->count();
+        $conquer['own'] = $conquerModel->whereIn('old_owner', $allyPlayers)->whereIn('new_owner', $allyPlayers)->count();
+        $conquer['total'] = $conquer['old'] + $conquer['new'] + $conquer['own'];
+
+        return $conquer;
+    }
+
+    /**
+     * @param World $world
+     * @param int $villageID
+     * @return \Illuminate\Support\Collection
+     */
+    public static function villageConquerCounts(World $world, $villageID){
+        $conquerModel = new Conquer($world);
+
+        $conquer = [];
+        $conquer['total'] = $conquerModel->where('village_id', $villageID)->count();
+
+        return $conquer;
+    }
+
+    private function getOldAllyID() {
+        $oldAllyID = $this->old_ally;
+        if($this->old_ally_name == null &&
+                $this->oldPlayer != null && $this->oldPlayer->allyLatest != null) {
+            $oldAllyID = $this->oldPlayer->ally_id;
+        }
+        return $oldAllyID;
+    }
+
+    private function getNewAllyID() {
+        $newAllyID = $this->new_ally;
+        if($this->new_ally_name == null &&
+                $this->newPlayer != null && $this->newPlayer->allyLatest != null) {
+            $newAllyID = $this->newPlayer->ally_id;
+        }
+        return $newAllyID;
+    }
+}

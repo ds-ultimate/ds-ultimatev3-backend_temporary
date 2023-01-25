@@ -19,12 +19,12 @@ return new class extends Migration
             $table->timestamp('world_finalized_at')->nullable()->after('worldTop_at');
         });
         
-        foreach((new World())->get() as $w) {
-            if($w->generateDisplayName() == $w->display_name) {
-                $w->display_name = null;
-                $w->save();
-            }
-        }
+//        foreach((new World())->get() as $w) {
+//            if($w->generateDisplayName() == $w->display_name) {
+//                $w->display_name = null;
+//                $w->save();
+//            }
+//        }
         
         Schema::table('server', function (Blueprint $table) {
             $table->text('locale')->default('de')->after('classic_active');
