@@ -12,7 +12,7 @@ class ServerResource extends CustomJsonResource
      */
     public function toArray($request)
     {
-        return $this->allowFields([
+        return array_merge($this->allowFields([
             "id",
             "code",
             "flag",
@@ -21,6 +21,8 @@ class ServerResource extends CustomJsonResource
             "speed_active",
             "classic_active",
             "locale",
+        ]), [
+            "world_cnt" => $this->resource->worlds_count
         ]);
     }
 }

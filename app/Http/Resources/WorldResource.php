@@ -20,13 +20,13 @@ class WorldResource extends CustomJsonResource
             "player_count",
             "village_count",
             "active",
-            "maintananceMode",
+            "server__code",
         ]), [
-            'server' => $this->resource->server->code,
             'hasConfig' => $this->config !== null,
             'hasUnits' => $this->units !== null,
             'hasBuildings' => $this->buildings !== null,
             'sortType' => $this->sortType(),
+            'maintenanceMode'=> $this->resource->maintananceMode
         ]);
     }
 }

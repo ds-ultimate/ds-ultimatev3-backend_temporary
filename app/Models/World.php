@@ -121,6 +121,29 @@ class World extends CustomModel
         return (int)preg_replace("/[^0-9]+/", '', $this->name);
     }
     
+    /**
+     * @return string
+     */
+    public function type()
+    {
+        /*
+         * Setzt den Welten Type:
+         * dep => Casual
+         * des => Speed
+         * dec => Classic
+         * de => Welt
+         */
+        if($this->isSpeed()){
+            return ucfirst(__('ui.world.speed'));
+        } elseif($this->isCasual()){
+            return ucfirst(__('ui.world.casual'));
+        } elseif($this->isNormalServer()){
+            return ucfirst(__('ui.world.normal'));
+        } else{
+            return ucfirst(__('ui.world.classic'));
+        }
+    }
+    
     public function isSpecialServer() {
         return static::isSpecialServerName($this->name);
     }

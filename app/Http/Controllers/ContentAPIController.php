@@ -18,42 +18,30 @@ class ContentAPIController extends Controller
         $serverArray = Server::getServer();
         $news = News::orderBy('order')->get();
         return Response::json([
-            "severs" => $serverArray,
+            "servers" => $serverArray,
             "news" => $news,
         ]);
     }
     
     public function serverGetWorlds($server){
-        return Response::json(Server::getAndCheckServerByCode($server, withWorlds: true)->worlds);
+        $server = Server::getAndCheckServerByCode($server, withWorlds: true);
+        return Response::json([
+            "server" => $server,
+            "worlds" => $server->worlds,
+        ]);
     }
-
-    /*
-     * https://ds-ultimate.de/de
-     * */
-    public function server($server){
-        $server = Server::getAndCheckServerByCode($server);
-        $worldsArray = World::worldsCollection($server, ['speed' => 'special', 'casual' => 'special', 'classic' => 'special']);
-        usort($worldsArray['world'], function($a, $b) {
-            return -1*strcmp($a->name, $b->name);
-        });
-        $worldsArrays = World::worldsCollectionActiveSorter($worldsArray);
-        $worldsActive = $worldsArrays['active'];
-        $worldsInactive = $worldsArrays['inactive'];
-//        return view('content.server', compact('worldsActive', 'worldsInactive', 'server'));
-    }
-
-    /*
-     * https://ds-ultimate.de/de/164
-     * */
-    public function world($server, $world){
+    
+    public function worldOverview($server, $world){
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
 
         $playerArray = Player::top10Player($worldData);
         $allyArray = Ally::top10Ally($worldData);
-
-//        return view('content.world', compact('playerArray', 'allyArray', 'worldData', 'server'));
-
+        return Response::json([
+            "world" => $worldData,
+            "player" => $playerArray,
+            "ally" => $allyArray,
+        ]);
     }
 
     /*

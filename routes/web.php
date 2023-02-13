@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [\App\Http\Controllers\WebController::class, 'index'])->name('index');
+Route::get('/', [\App\Http\Controllers\WebController::class, 'index']);
 
-Route::get('/indexPage', [\App\Http\Controllers\ContentAPIController::class, 'index'])->name('index');
-Route::get('/serverGetWorlds/{server}', [\App\Http\Controllers\ContentAPIController::class, 'serverGetWorlds'])->name('serverGetWorlds');
-Route::get('/serverOverview/{server}', [\App\Http\Controllers\ContentAPIController::class, 'server'])->name('server');
-Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'world'])->name('world');
+Route::get('/indexPage', [\App\Http\Controllers\ContentAPIController::class, 'index']);
+Route::get('/serverGetWorlds/{server}', [\App\Http\Controllers\ContentAPIController::class, 'serverGetWorlds']);
+Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldOverview']);
+Route::get('/tables/worldPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayer']);

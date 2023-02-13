@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\AllyResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
@@ -22,6 +23,25 @@ class Ally extends CustomModel
         'defBashRank',
         'gesBash',
         'gesBashRank',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'allyID' => 'integer',
+        'member_count' => 'integer',
+        'village_count' => 'integer',
+        'points' => 'integer',
+        'rank' => 'integer',
+        'offBash' => 'integer',
+        'offBashRank' => 'integer',
+        'defBash' => 'integer',
+        'defBashRank' => 'integer',
+        'gesBash' => 'integer',
+        'gesBashRank' => 'integer',
     ];
     
     protected $defaultTableName = "ally_latest";
@@ -85,5 +105,9 @@ class Ally extends CustomModel
                     ->first();
         }
         return $this->allyHistCache[$days];
+    }
+    
+    public function toArray() {
+        return new AllyResource($this);
     }
 }

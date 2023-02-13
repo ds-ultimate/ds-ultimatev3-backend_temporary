@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\PlayerResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
@@ -24,6 +25,29 @@ class Player extends CustomModel
         'gesBash',
         'gesBashRank',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'playerID' => 'integer',
+        'ally_id' => 'integer',
+        'village_count' => 'integer',
+        'points' => 'integer',
+        'rank' => 'integer',
+        'offBash' => 'integer',
+        'offBashRank' => 'integer',
+        'defBash' => 'integer',
+        'defBashRank' => 'integer',
+        'supBash' => 'integer',
+        'supBashRank' => 'integer',
+        'gesBash' => 'integer',
+        'gesBashRank' => 'integer',
+    ];
+    
+    protected $with = ['allyLatest'];
     
     public $timestamps = true;
     
@@ -61,8 +85,7 @@ class Player extends CustomModel
      * @return Collection
      */
     public static function top10Player(World $world){
-        $playerModel = new Player($world);
-        return $playerModel->orderBy('rank')->limit(10)->get();
+        return (new Player($world))->orderBy('rank')->limit(10)->get();
     }
 
     /**
@@ -70,9 +93,17 @@ class Player extends CustomModel
      * @param int $player
      * @return $this
      */
-    public static function player(World $world, $player){
+    public static function player(World $world, $player) {
         $playerModel = new Player($world);
         return $playerModel->find($player);
+    }
+    
+    public static function getJoinedQuery(World $world) {
+        $p = new Player($world);
+        return $p->select(["player.*", "ally.name as allyLatest__name", "ally.tag as allyLatest__tag"])
+                ->from($p->getTable(), "player")
+                ->leftjoin($p->getRelativeTable("ally_latest") . " as ally", 'player.ally_id', '=', 'ally.allyID')
+                ->setEagerLoads([]);
     }
 
     public function follows(){
@@ -108,5 +139,9 @@ class Player extends CustomModel
         $sig->world_id = $worldData->id;
         $this->signature()->save($sig);
         return $sig;
+    }
+    
+    public function toArray() {
+        return new PlayerResource($this);
     }
 }
