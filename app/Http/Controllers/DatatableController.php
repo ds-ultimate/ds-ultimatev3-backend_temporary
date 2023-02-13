@@ -14,9 +14,12 @@ class DatatableController extends Controller
         $worldData = World::getAndCheckWorld($server, $world);
 
         $whitelist = ['rank', 'name', 'points', 'village_count', 'gesBash', 'offBash', 'defBash', 'supBash', 'allyLatest__name'];
+        $searchWhitelist = ['player.rank', 'player.name', 'player.points', 'player.village_count', 'player.gesBash',
+            'player.offBash', 'player.defBash', 'player.supBash', 'ally.name', 'ally.tag'];
 
         return DataTable::generate(Player::getJoinedQuery($worldData))
             ->setWhitelist($whitelist)
+            ->setSearchWhitelist($searchWhitelist)
             ->toJson();
     }
     

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Response;
 class DataTable {
     private $builder;
     private $whitelist = [];
+    private $searchWhitelist = [];
     private $max_once = 200;
     
     private static $SORT_ASC = 0;
@@ -15,6 +16,11 @@ class DataTable {
     
     public function __construct(Builder $builder) {
         $this->builder = $builder;
+    }
+    
+    public function setSearchWhitelist($searchWhitelist) {
+        $this->searchWhitelist = $searchWhitelist;
+        return $this;
     }
     
     public function setWhitelist($whitelist) {
@@ -34,7 +40,22 @@ class DataTable {
         $count = $this->builder->count();
         $params = $this->verifyParameters();
         
-        $sortedBuilder = $this->builder;
+        $filteredBuilder = $this->builder;
+        $filteredCount = $count;
+        if(isset($params['search'])) {
+            $search = BasicFunctions::likeSaveEscape($params['search']);
+            $searchWL = $this->searchWhitelist;
+            $filteredBuilder = $filteredBuilder->where(function($query) use($searchWL, $search) {
+                foreach($searchWL as $s) {
+                    $query = $query->orWhere($s, 'LIKE', "%$search%");
+                }
+                return $query;
+            });
+            $filteredCount = $filteredBuilder->count();
+        }
+        
+        
+        $sortedBuilder = $filteredBuilder;
         if(isset($params['sort'])) {
             foreach($params['sort'] as $sortBy) {
                 if($sortBy[1] == static::$SORT_ASC) {
@@ -49,6 +70,7 @@ class DataTable {
         return Response::json([
             "data" => $data,
             "count" => $count,
+            "filtered" => $count,
         ]);
     }
     
@@ -63,31 +85,8 @@ class DataTable {
             'sort.*' => 'array|min:2|max:2',
             'sort.*.0' => [\Illuminate\Validation\Rule::in($this->whitelist)],
             'sort.*.1' => 'min:0|max:1',
-            /*
-            'columns' => 'required|array',
-            'columns.*.searchable' => ['required', new \App\Rules\BooleanText],
-            'columns.*.orderable' => ['required', new \App\Rules\BooleanText],
-            'columns.*.search.value' => '', //string ??
-            'columns.*.search.regex' => ['required', new \App\Rules\BooleanText],
-            'columns.*.name' => ['nullable', \Illuminate\Validation\Rule::in($whitelistColumns)],
-            'columns.*.data' => ['required', \Illuminate\Validation\Rule::in($whitelistColumns)],
-            'order' => 'array',
-            'order.*.column' => 'required|integer',
-            'order.*.dir' => ['required', \Illuminate\Validation\Rule::in(['asc', 'desc'])],
-            'search.value' => 'string|nullable',
-            'search.regex' => [new \App\Rules\BooleanText],
-             */
+            'search' => 'string|nullable',
         ]);
-        
-            /*
-        $colKeys = validator(array_keys($dat['columns']), [
-            '*' => 'numeric|integer',
-        ])->validate();
-        
-        request()->validate([
-            'order.*.column' => ['required', 'integer', \Illuminate\Validation\Rule::in($colKeys)]
-        ]);
-             */
         return $config;
     }
     
