@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Response;
 class ContentAPIController extends Controller
 {
     public function index(){
-        $serverArray = Server::getServer();
+        $serverArray = Server::getServer(withWorldCount: true);
         $news = News::orderBy('order')->get();
         return Response::json([
             "servers" => $serverArray,

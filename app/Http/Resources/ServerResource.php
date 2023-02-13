@@ -22,7 +22,7 @@ class ServerResource extends CustomJsonResource
             "classic_active",
             "locale",
         ]), [
-            "world_cnt" => $this->resource->worlds_count
+            "world_cnt" => isset($this->resource->worlds_count)?($this->resource->worlds_count):($this->resource->worlds->count())
         ]);
     }
 }

@@ -23,8 +23,6 @@ class Server extends Model
         'classic_active',
         'locale',
     ];
-    
-    protected $withCount = ['worlds'];
 
     /**
      * Connects the server table with the worlds table
@@ -45,9 +43,11 @@ class Server extends Model
      *
      * @return Collection
      */
-    public static function getServer($withWorlds=false){
+    public static function getServer($withWorlds=false, $withWorldCount=false){
         if($withWorlds) {
             return Server::with("worlds")->get();
+        } else if($withWorldCount) {
+            return Server::withCount("worlds")->get();
         } else {
             return (new Server())->get();
         }
