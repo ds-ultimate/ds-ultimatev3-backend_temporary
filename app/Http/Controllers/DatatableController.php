@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ally;
 use App\Models\Player;
 use App\Models\Server;
 use App\Models\World;
@@ -9,6 +10,19 @@ use App\Util\DataTable;
 
 class DatatableController extends Controller
 {
+    public function worldAlly($server, $world){
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+
+        $whitelist = ['rank', 'name', 'tag', 'points', 'member_count', 'village_count', 'gesBash', 'offBash', 'defBash'];
+        $searchWhitelist = ['rank', 'name', 'tag', 'points', 'member_count', 'village_count', 'gesBash', 'offBash', 'defBash'];
+
+        return DataTable::generate((new Ally($worldData))->select())
+            ->setWhitelist($whitelist)
+            ->setSearchWhitelist($searchWhitelist)
+            ->toJson();
+    }
+    
     public function worldPlayer($server, $world){
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
