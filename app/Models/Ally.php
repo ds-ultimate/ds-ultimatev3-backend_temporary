@@ -91,21 +91,6 @@ class Ally extends CustomModel
         $allyModel = new Ally($world);
         return $allyModel->find((int) $ally);
     }
-
-    private $allyHistCache = [];
-    public function allyHistory($days, World $world){
-        if(! isset($this->allyHistCache[$days])) {
-            $tableNr = $this->allyID % ($world->hash_ally);
-
-            $allyModel = new Ally($world, "ally_$tableNr");
-            $timestamp = Carbon::now()->subDays($days);
-            $this->allyHistCache[$days] =  $allyModel->where('allyID', $this->allyID)
-                    ->whereDate('updated_at', $timestamp->toDateString())
-                    ->orderBy('updated_at', 'DESC')
-                    ->first();
-        }
-        return $this->allyHistCache[$days];
-    }
     
     public function toArray() {
         return new AllyResource($this);

@@ -2,10 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Util\BasicFunctions;
-
 class PlayerResource extends CustomJsonResource
 {
+    private $exportAlly;
+    
+    public function __construct($resource, $exportAlly=true) {
+        parent::__construct($resource);
+        $this->exportAlly = $exportAlly;
+    }
     /**
      * Transform the resource into an array.
      *
@@ -14,7 +18,7 @@ class PlayerResource extends CustomJsonResource
      */
     public function toArray($request)
     {
-        return $this->allowFields([
+        $fields = [
             "playerID",
             "name",
             "ally_id",
@@ -29,8 +33,13 @@ class PlayerResource extends CustomJsonResource
             "supBashRank",
             "gesBash",
             "gesBashRank",
-            "allyLatest__name",
-            "allyLatest__tag",
-        ]);
+        ];
+        
+        if($this->exportAlly) {
+            $fields[] = "allyLatest__name";
+            $fields[] = "allyLatest__tag";
+        }
+        
+        return $this->allowFields($fields);
     }
 }

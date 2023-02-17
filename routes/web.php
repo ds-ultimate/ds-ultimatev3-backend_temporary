@@ -22,3 +22,5 @@ Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIC
 //Datatables
 Route::get('/tables/worldAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAlly']);
 Route::get('/tables/worldPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayer']);
+Route::get('/tables/worldHistoryAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAllyHist']);
+Route::get('/tables/worldHistoryPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayerHist']);

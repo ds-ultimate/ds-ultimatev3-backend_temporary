@@ -7,6 +7,8 @@ use App\Models\Player;
 use App\Models\Server;
 use App\Models\World;
 use App\Util\DataTable;
+use App\Http\Resources\PlayerResource;
+use Carbon\Carbon;
 
 class DatatableController extends Controller
 {
@@ -37,6 +39,120 @@ class DatatableController extends Controller
             ->toJson();
     }
     
+    public function worldAllyHist($server, $world){
+        $datValid = request()->validate([
+            'day' => 'required|date_format:Y-m-d',
+        ]);
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        
+        $timestamp = Carbon::createFromFormat('Y-m-d', $datValid['day']);
+
+        $whitelist = ['rank', 'name', 'tag', 'points', 'member_count', 'village_count', 'gesBash', 'offBash', 'defBash'];
+        $searchWhitelist = ['rank', 'name', 'tag', 'points', 'member_count', 'village_count', 'gesBash', 'offBash', 'defBash'];
+        
+        $allyHistCache = collect();
+        return DataTable::generate((new Ally($worldData))->select())
+            ->setMaxOnce(100)
+            ->setWhitelist($whitelist)
+            ->setSearchWhitelist($searchWhitelist)
+            ->prepareHook(function($data) use($worldData, $timestamp, $allyHistCache) {
+                $tables = [];
+                foreach($data as $d) {
+                    $tableNr = $d->allyID % ($worldData->hash_ally);
+                    if(! isset($tables[$tableNr])) {
+                        $tables[$tableNr] = [];
+                    }
+                    $tables[$tableNr][] = $d->allyID;
+                }
+                
+                foreach($tables as $tbl => $allyIDs) {
+                    $allyModel = new Ally($worldData, "ally_$tbl");
+                    $tmp = $allyModel->where(function ($query) use($allyIDs) {
+                            foreach($allyIDs as $a) {
+                                $query = $query->orWhere('allyID', $a);
+                            }
+                            return $query;
+                        })
+                            ->whereDate('updated_at', $timestamp->toDateString())
+                            ->orderBy('updated_at', 'DESC')
+                            ->setEagerLoads([])
+                            ->limit(count($allyIDs))
+                            ->get();
+                    
+                    foreach($tmp as $t) {
+                        if(! isset($allyHistCache[$t->allyID])) {
+                            $allyHistCache[$t->allyID] = $t;
+                        }
+                    }
+                }
+            })
+            ->toJson(function($entry) use($allyHistCache) {
+                return [
+                    $entry,
+                    $allyHistCache[$entry->allyID] ?? null,
+                ];
+            });
+    }
+    
+    public function worldPlayerHist($server, $world){
+        $datValid = request()->validate([
+            'day' => 'required|date_format:Y-m-d',
+        ]);
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        
+        $timestamp = Carbon::createFromFormat('Y-m-d', $datValid['day']);
+
+        $whitelist = ['rank', 'name', 'points', 'village_count', 'gesBash', 'offBash', 'defBash', 'supBash', 'allyLatest__name'];
+        $searchWhitelist = ['player.rank', 'player.name', 'player.points', 'player.village_count', 'player.gesBash',
+            'player.offBash', 'player.defBash', 'player.supBash', 'ally.name', 'ally.tag'];
+        
+        $playerHistCache = collect();
+        return DataTable::generate(Player::getJoinedQuery($worldData))
+            ->setMaxOnce(100)
+            ->setWhitelist($whitelist)
+            ->setSearchWhitelist($searchWhitelist)
+            ->prepareHook(function($data) use($worldData, $timestamp, $playerHistCache) {
+                $tables = [];
+                foreach($data as $d) {
+                    $tableNr = $d->playerID % ($worldData->hash_player);
+                    if(! isset($tables[$tableNr])) {
+                        $tables[$tableNr] = [];
+                    }
+                    $tables[$tableNr][] = $d->playerID;
+                }
+                
+                foreach($tables as $tbl => $playerIDs) {
+                    $allyModel = new Player($worldData, "player_$tbl");
+                    $tmp = $allyModel->where(function ($query) use($playerIDs) {
+                            foreach($playerIDs as $a) {
+                                $query = $query->orWhere('playerID', $a);
+                            }
+                            return $query;
+                        })
+                            ->whereDate('updated_at', $timestamp->toDateString())
+                            ->orderBy('updated_at', 'DESC')
+                            ->setEagerLoads([])
+                            ->limit(count($playerIDs))
+                            ->get();
+                    
+                    foreach($tmp as $t) {
+                        if(! isset($playerHistCache[$t->playerID])) {
+                            $playerHistCache[$t->playerID] = $t;
+                        }
+                    }
+                }
+            })
+            ->toJson(function($entry) use($playerHistCache) {
+                $hist = $playerHistCache[$entry->playerID] ?? null;
+                return [
+                    $entry,
+                    ($hist == null)?(null):(new PlayerResource($hist, false)),
+                ];
+            });
+    }
+
         /*
          * For AttackPlan
         select `items`.*,

@@ -110,21 +110,6 @@ class Player extends CustomModel
         return $this->morphToMany(User::class, 'followable', 'follows');
     }
 
-    private $playerHistCache = [];
-    public function playerHistory($days, World $world){
-        if(! isset($this->playerHistCache[$days])) {
-            $tableNr = $this->playerID % $world->hash_player;
-            
-            $playerModel = new Player($world, "player_$tableNr");
-            $timestamp = Carbon::now()->subDays($days);
-            $this->playerHistCache[$days] =  $playerModel->where('playerID', $this->playerID)
-                    ->whereDate('updated_at', $timestamp->toDateString())
-                    ->orderBy('updated_at', 'DESC')
-                    ->first();
-        }
-        return $this->playerHistCache[$days];
-    }
-
     public function signature() {
         return $this->morphMany(Signature::class, 'element');
     }

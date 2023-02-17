@@ -10,6 +10,7 @@ class DataTable {
     private $whitelist = [];
     private $searchWhitelist = [];
     private $max_once = 200;
+    private $prepHook = null;
     
     private static $SORT_ASC = 0;
     private static $SORT_DESC = 1;
@@ -33,10 +34,15 @@ class DataTable {
         return $this;
     }
     
+    public function prepareHook(callable $prepHook) {
+        $this->prepHook = $prepHook;
+        return $this;
+    }
+    
     /**
      * Tells us that we should render this now and print it to the api endpoint
      */
-    public function toJson() {
+    public function toJson(callable $conversionFunction=null) {
         $count = $this->builder->count();
         $params = $this->verifyParameters();
         
@@ -66,6 +72,18 @@ class DataTable {
             }
         }
         $data = $sortedBuilder->limit($params['length'])->skip($params['start'])->get();
+        
+        if($this->prepHook !== null) {
+            ($this->prepHook)($data);
+        }
+        
+        if($conversionFunction !== null) {
+            $dataNew = [];
+            foreach($data as $d) {
+                $dataNew[] = $conversionFunction($d);
+            }
+            $data = $dataNew;
+        }
 
         return Response::json([
             "data" => $data,
