@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Resources\ConquerResource;
+
 class Conquer extends CustomModel
 {
     protected $table = 'conquer';
@@ -23,6 +25,25 @@ class Conquer extends CustomModel
         'points',
         'created_at',
         'updated_at',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'village_id' => 'integer',
+        'timestamp' => 'integer',
+        'new_owner' => 'integer',
+        'old_owner' => 'integer',
+        'id' => 'integer',
+        'old_ally' => 'integer',
+        'new_ally' => 'integer',
+        'points' => 'integer',
+        'village__x' => 'integer',
+        'village__y' => 'integer',
+        'village__bonus_id' => 'integer',
     ];
     
     protected $defaultTableName = "conquer";
@@ -146,5 +167,18 @@ class Conquer extends CustomModel
             $newAllyID = $this->newPlayer->ally_id;
         }
         return $newAllyID;
+    }
+    
+    public static function getJoinedQuery(World $world) {
+        $c = new Conquer($world);
+        return $c->select(["conquer.*", "village.name as village__name",
+            "village.x as village__x", "village.y as village__y", "village.bonus_id as village__bonus_id"])
+                ->from($c->getTable(), "conquer")
+                ->leftjoin($c->getRelativeTable("village_latest") . " as village", 'conquer.village_id', '=', 'village.villageID')
+                ->setEagerLoads([]);
+    }
+    
+    public function toArray() {
+        return new ConquerResource($this);
     }
 }

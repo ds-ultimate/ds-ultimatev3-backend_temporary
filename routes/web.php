@@ -24,3 +24,4 @@ Route::get('/tables/worldAlly/{server}/{world}', [\App\Http\Controllers\Datatabl
 Route::get('/tables/worldPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayer']);
 Route::get('/tables/worldHistoryAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAllyHist']);
 Route::get('/tables/worldHistoryPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayerHist']);
+Route::get('/tables/worldConquer/{server}/{world}/{type}', [\App\Http\Controllers\ConquerController::class, 'worldConquer']);

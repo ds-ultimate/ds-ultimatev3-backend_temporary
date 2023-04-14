@@ -6,7 +6,7 @@ class Village extends CustomModel
 {
     protected $primaryKey = 'villageID';
     protected $fillable =[
-        'id', 'name', 'x', 'y', 'points', 'owner', 'bonus_id',
+        'villageID', 'name', 'x', 'y', 'points', 'owner', 'bonus_id',
     ];
     
     public $timestamps = true;
