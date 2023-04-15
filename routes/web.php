@@ -25,3 +25,10 @@ Route::get('/tables/worldPlayer/{server}/{world}', [\App\Http\Controllers\Datata
 Route::get('/tables/worldHistoryAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAllyHist']);
 Route::get('/tables/worldHistoryPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayerHist']);
 Route::get('/tables/worldConquer/{server}/{world}/{type}', [\App\Http\Controllers\ConquerController::class, 'worldConquer']);
+
+//Select2
+Route::get('/select/village/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Village']);
+Route::get('/select/player/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Player']);
+Route::get('/select/ally/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Ally']);
+Route::get('/select/playerTop/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2PlayerTop']);
+Route::get('/select/allyTop/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2AllyTop']);

@@ -31,6 +31,13 @@ class Village extends CustomModel
     }
 
     /**
+     * @return string
+     */
+    public function coordinates() {
+        return $this->x."|".$this->y;
+    }
+
+    /**
      * @param World $world
      * @param int $village
      * @return $this

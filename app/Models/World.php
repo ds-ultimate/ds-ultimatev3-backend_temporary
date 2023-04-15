@@ -53,6 +53,8 @@ class World extends CustomModel
         'worldUpdated_at' => 'datetime',
         'worldCleaned_at' => 'datetime',
     ];
+    
+    protected $with = ['database'];
 
     /**
      * Verbindet die world Tabelle mit der server Tabelle
