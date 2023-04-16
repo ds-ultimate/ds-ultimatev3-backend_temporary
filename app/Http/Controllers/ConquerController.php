@@ -52,69 +52,73 @@ class ConquerController extends Controller
      * 5: win
      * 6: loose
      */
-    private function doConquerReturn($query, $worldData) {
+    private function doConquerReturn($dtQuery, $worldData) {
         $getArray = Request::validate(static::$conquerReturnValidate);
         $filter = $getArray["filter"];
-        $query->where(function($q) use($filter) {
-            if(isset($filter[5]) || isset($filter[6])) {
-                dd("This needs to be implemented :)");
-            }
-            if(($filter[0] ?? 1) && ($filter[1] ?? 1) && ($filter[2] ?? 1) &&
-                    ($filter[3] ?? 1) && ($filter[4] ?? 1)) {
-                return;
-            }
-            $q->orWhere("timestamp", -1);
+        
+        $filterCb = function($query) use($filter) {
+            $query->where(function($q) use($filter) {
+                if(isset($filter[5]) || isset($filter[6])) {
+                    dd("This needs to be implemented :)");
+                }
+                if(($filter[0] ?? 1) && ($filter[1] ?? 1) && ($filter[2] ?? 1) &&
+                        ($filter[3] ?? 1) && ($filter[4] ?? 1)) {
+                    return;
+                }
+                $q->orWhere("timestamp", -1);
 
-            if($filter[0] ?? 1) {
-                $q->orWhere(function($qi) {
-                    $qi->where(function($qi2) {
-                        $qi2->orwhereColumn("conquer.new_ally", "!=", "conquer.old_ally");
-                        $qi2->orWhere("conquer.old_ally", 0);
+                if($filter[0] ?? 1) {
+                    $q->orWhere(function($qi) {
+                        $qi->where(function($qi2) {
+                            $qi2->orwhereColumn("conquer.new_ally", "!=", "conquer.old_ally");
+                            $qi2->orWhere("conquer.old_ally", 0);
+                        });
+                        $qi->whereColumn("conquer.new_owner", "!=", "conquer.old_owner");
+                        $qi->whereNot("conquer.new_owner", 0);
+                        $qi->whereNot("conquer.old_owner", 0);
                     });
-                    $qi->whereColumn("conquer.new_owner", "!=", "conquer.old_owner");
-                    $qi->whereNot("conquer.new_owner", 0);
-                    $qi->whereNot("conquer.old_owner", 0);
-                });
+                }
+                if($filter[1] ?? 1) {
+                    $q->orWhere(function($qi) {
+                        $qi->whereColumn("conquer.new_ally", "conquer.old_ally");
+                        $qi->whereNot("conquer.old_ally", 0);
+                        $qi->whereColumn("conquer.new_owner", "!=", "conquer.old_owner");
+                    });
+                }
+                if($filter[2] ?? 1) {
+                    $q->orWhere(function($qi) {
+                        $qi->whereColumn("conquer.new_owner", "conquer.old_owner");
+                        $qi->whereNot("conquer.old_owner", 0);
+                    });
+                }
+                if($filter[3] ?? 1) {
+                    $q->orWhere("conquer.old_owner", 0);
+                }
+//                if($filter[4] ?? 1) {
+//                    $q->orWhere("conquer.new_owner", 0);
+//                } not possible
+            });
+            if(isset($filter["v"])) {
+                $query->where("conquer.village_id", (int) $filter["v"]);
             }
-            if($filter[1] ?? 1) {
-                $q->orWhere(function($qi) {
-                    $qi->whereColumn("conquer.new_ally", "conquer.old_ally");
-                    $qi->whereNot("conquer.old_ally", 0);
-                    $qi->whereColumn("conquer.new_owner", "!=", "conquer.old_owner");
-                });
+            if(isset($filter["op"])) {
+                $query->where("conquer.old_owner", (int) $filter["op"]);
             }
-            if($filter[2] ?? 1) {
-                $q->orWhere(function($qi) {
-                    $qi->whereColumn("conquer.new_owner", "conquer.old_owner");
-                    $qi->whereNot("conquer.old_owner", 0);
-                });
+            if(isset($filter["np"])) {
+                $query->where("conquer.new_owner", (int) $filter["np"]);
             }
-            if($filter[3] ?? 1) {
-                $q->orWhere("conquer.old_owner", 0);
+            if(isset($filter["oa"])) {
+                $query->where("conquer.old_ally", (int) $filter["oa"]);
             }
-//            if($filter[4] ?? 1) {
-//                $q->orWhere("conquer.new_owner", 0);
-//            } not possible
-        });
-        if(isset($filter["v"])) {
-            $query->where("conquer.village_id", (int) $filter["v"]);
-        }
-        if(isset($filter["op"])) {
-            $query->where("conquer.old_owner", (int) $filter["op"]);
-        }
-        if(isset($filter["np"])) {
-            $query->where("conquer.new_owner", (int) $filter["np"]);
-        }
-        if(isset($filter["oa"])) {
-            $query->where("conquer.old_ally", (int) $filter["oa"]);
-        }
-        if(isset($filter["na"])) {
-            $query->where("conquer.new_ally", (int) $filter["na"]);
-        }
+            if(isset($filter["na"])) {
+                $query->where("conquer.new_ally", (int) $filter["na"]);
+            }
+        };
 
-        return DataTable::generate($query)
+        return DataTable::generate($dtQuery)
             ->setWhitelist(static::$whitelist)
             ->setSearchWhitelist(static::$searchWhitelist)
+            ->setFilter($filterCb)
             ->toJson(function($entry) {
                 return new ConquerResource($entry, true);
             });

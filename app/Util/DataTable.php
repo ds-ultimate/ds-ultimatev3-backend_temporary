@@ -11,6 +11,7 @@ class DataTable {
     private $searchWhitelist = [];
     private $max_once = 200;
     private $prepHook = null;
+    private $filter = null;
     
     private static $SORT_ASC = 0;
     private static $SORT_DESC = 1;
@@ -39,6 +40,11 @@ class DataTable {
         return $this;
     }
     
+    public function setFilter(callable $filter) {
+        $this->filter = $filter;
+        return $this;
+    }
+    
     /**
      * Tells us that we should render this now and print it to the api endpoint
      */
@@ -57,9 +63,15 @@ class DataTable {
                 }
                 return $query;
             });
+            $filteredCount = -1;
+        }
+        if($this->filter !== null) {
+            ($this->filter)($filteredBuilder);
+            $filteredCount = -1;
+        }
+        if($filteredCount == -1) {
             $filteredCount = $filteredBuilder->count();
         }
-        
         
         $sortedBuilder = $filteredBuilder;
         if(isset($params['sort'])) {
@@ -88,7 +100,7 @@ class DataTable {
         return Response::json([
             "data" => $data,
             "count" => $count,
-            "filtered" => $count,
+            "filtered" => $filteredCount,
         ]);
     }
     
