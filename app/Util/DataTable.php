@@ -2,7 +2,8 @@
 
 namespace App\Util;
 
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EqBuilder;
+use Illuminate\Database\Query\Builder as DBBuilder;
 use Illuminate\Support\Facades\Response;
 
 class DataTable {
@@ -12,11 +13,12 @@ class DataTable {
     private $max_once = 200;
     private $prepHook = null;
     private $filter = null;
+    private $clientSide = false;
     
     private static $SORT_ASC = 0;
     private static $SORT_DESC = 1;
     
-    public function __construct(Builder $builder) {
+    public function __construct(EqBuilder|DBBuilder $builder) {
         $this->builder = $builder;
     }
     
@@ -45,13 +47,48 @@ class DataTable {
         return $this;
     }
     
+    public function clientSide() {
+        $this->clientSide = true;
+        return $this;
+    }
+    
     /**
      * Tells us that we should render this now and print it to the api endpoint
      */
     public function toJson(callable $conversionFunction=null) {
+        if($this->clientSide) {
+            return $this->clientReturn($conversionFunction);
+        } else {
+            return $this->serverReturn($conversionFunction);
+        }
+    }
+    
+    private function clientReturn(callable $conversionFunction) {
+        $data = $this->builder->get();
+        
+        if($this->prepHook !== null) {
+            ($this->prepHook)($data);
+        }
+        
+        if($conversionFunction !== null) {
+            $dataNew = [];
+            $idx = 0;
+            foreach($data as $d) {
+                $dataNew[] = $conversionFunction($d, $idx++);
+            }
+            $data = $dataNew;
+        }
+
+        return Response::json([
+            "data" => $data,
+            "count" => count($data),
+        ]);
+    }
+    
+    private function serverReturn(callable $conversionFunction) {
         $count = $this->builder->count();
         $params = $this->verifyParameters();
-        
+
         $filteredBuilder = $this->builder;
         $filteredCount = $count;
         if(isset($params['search'])) {
@@ -72,7 +109,7 @@ class DataTable {
         if($filteredCount == -1) {
             $filteredCount = $filteredBuilder->count();
         }
-        
+
         $sortedBuilder = $filteredBuilder;
         if(isset($params['sort'])) {
             foreach($params['sort'] as $sortBy) {
@@ -91,8 +128,9 @@ class DataTable {
         
         if($conversionFunction !== null) {
             $dataNew = [];
+            $idx = $params['start'];
             foreach($data as $d) {
-                $dataNew[] = $conversionFunction($d);
+                $dataNew[] = $conversionFunction($d, $idx++);
             }
             $data = $dataNew;
         }
@@ -120,7 +158,7 @@ class DataTable {
         return $config;
     }
     
-    public static function generate(Builder $builder) {
+    public static function generate(EqBuilder|DBBuilder $builder) {
         return new DataTable($builder);
     }
 }

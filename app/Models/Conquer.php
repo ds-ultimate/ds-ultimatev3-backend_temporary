@@ -44,6 +44,7 @@ class Conquer extends CustomModel
         'village__x' => 'integer',
         'village__y' => 'integer',
         'village__bonus_id' => 'integer',
+        'total' => 'integer',
     ];
     
     protected $defaultTableName = "conquer";

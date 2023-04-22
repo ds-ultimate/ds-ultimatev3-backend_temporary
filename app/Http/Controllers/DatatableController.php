@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ally;
-use App\Models\Conquer;
 use App\Models\Player;
 use App\Models\Server;
 use App\Models\World;

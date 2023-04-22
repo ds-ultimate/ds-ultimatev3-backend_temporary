@@ -8,6 +8,8 @@ use App\Models\World;
 use App\Http\Resources\ConquerResource;
 use App\Util\DataTable;
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 class ConquerController extends Controller
@@ -22,7 +24,7 @@ class ConquerController extends Controller
         'filter.1' => 'numeric|integer',
         'filter.2' => 'numeric|integer',
         'filter.3' => 'numeric|integer',
-        //'filter.4' => 'numeric|integer', delted is not possible
+        //'filter.4' => 'numeric|integer', deleted is not possible
         'filter.5' => 'numeric|integer',
         'filter.6' => 'numeric|integer',
         'filter.v' => 'numeric|integer',
@@ -35,8 +37,16 @@ class ConquerController extends Controller
     public function worldConquer($server, $world, $type){
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
-
+        
         $query = Conquer::getJoinedQuery($worldData);
+        switch($type) {
+            case 'all':
+                break;
+            default:
+                //TODO localized error messages current idea: return translation idx + params
+                abort(404);
+        }
+
         return $this->doConquerReturn($query, $worldData);
     }
     
@@ -62,7 +72,7 @@ class ConquerController extends Controller
                     dd("This needs to be implemented :)");
                 }
                 if(($filter[0] ?? 1) && ($filter[1] ?? 1) && ($filter[2] ?? 1) &&
-                        ($filter[3] ?? 1) && ($filter[4] ?? 1)) {
+                        ($filter[3] ?? 1)) { //&& ($filter[4] ?? 1)
                     return;
                 }
                 $q->orWhere("timestamp", -1);
@@ -121,6 +131,85 @@ class ConquerController extends Controller
             ->setFilter($filterCb)
             ->toJson(function($entry) {
                 return new ConquerResource($entry, true);
+            });
+    }
+
+    public function worldConquerDailyPlayer($server, $world){
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        $day = Request::validate(['date' => 'required|string'])['date'];
+        $date = Carbon::createFromFormat('Y-m-d', $day);
+
+        $c = new Conquer($worldData);
+        $query = DB::table($c->getTable(), "conquer")
+                ->select([
+                    DB::raw('count(*) as total'),
+                    "conquer.new_owner",
+                    DB::raw("MAX(conquer.new_owner_name) as new_owner_name"),
+                    DB::raw("MAX(conquer.new_ally) as new_ally"),
+                    DB::raw("MAX(conquer.new_ally_name) as new_ally_name"),
+                    DB::raw("MAX(conquer.new_ally_tag) as new_ally_tag")
+                ])
+                ->where('timestamp', '>', $date->startOfDay()->getTimestamp())
+                ->where('timestamp', '<', $date->endOfDay()->getTimestamp())
+                ->groupBy('conquer.new_owner')
+                ->orderBy('total', 'DESC')
+                ->orderBy('new_owner', 'ASC');
+        
+
+        return DataTable::generate($query)
+            ->clientSide()
+            ->setWhitelist([])
+            ->setSearchWhitelist([])
+            ->toJson(function($entry, $i) {
+                $ret = [
+                    "rank" => $i + 1,
+                    "count" => (int) $entry->total,
+                    "playerID" => (int) $entry->new_owner,
+                    "name" => $entry->new_owner_name,
+                    "ally_id" => (int) $entry->new_ally,
+                    "ally_name" => $entry->new_ally_name,
+                    "ally_tag" => $entry->new_ally_tag,
+                ];
+                return $ret;
+            });
+    }
+
+    public function worldConquerDailyAlly($server, $world){
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        $day = Request::validate(['date' => 'required|string'])['date'];
+        $date = Carbon::createFromFormat('Y-m-d', $day);
+
+        $c = new Conquer($worldData);
+        $query = DB::table($c->getTable(), "conquer")
+                ->select([
+                    DB::raw('count(*) as total'),
+                    "conquer.new_ally",
+                    DB::raw("MAX(conquer.new_ally_name) as new_ally_name"),
+                    DB::raw("MAX(conquer.new_ally_tag) as new_ally_tag")
+                ])
+                ->where('timestamp', '>', $date->startOfDay()->getTimestamp())
+                ->where('timestamp', '<', $date->endOfDay()->getTimestamp())
+                ->where('conquer.new_ally', "!=", 0)
+                ->groupBy('conquer.new_ally')
+                ->orderBy('total', 'DESC')
+                ->orderBy('new_ally', 'ASC');
+        
+
+        return DataTable::generate($query)
+            ->clientSide()
+            ->setWhitelist([])
+            ->setSearchWhitelist([])
+            ->toJson(function($entry, $i) {
+                $ret = [
+                    "rank" => $i + 1,
+                    "count" => (int) $entry->total,
+                    "allyID" => (int) $entry->new_ally,
+                    "name" => $entry->new_ally_name,
+                    "tag" => $entry->new_ally_tag,
+                ];
+                return $ret;
             });
     }
 }

@@ -18,6 +18,7 @@ Route::get('/', [\App\Http\Controllers\WebController::class, 'index']);
 Route::get('/indexPage', [\App\Http\Controllers\ContentAPIController::class, 'index']);
 Route::get('/serverGetWorlds/{server}', [\App\Http\Controllers\ContentAPIController::class, 'serverGetWorlds']);
 Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldOverview']);
+Route::get('/worldExtendedData/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldExtendedData']);
 
 //Datatables
 Route::get('/tables/worldAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAlly']);
@@ -25,6 +26,8 @@ Route::get('/tables/worldPlayer/{server}/{world}', [\App\Http\Controllers\Datata
 Route::get('/tables/worldHistoryAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAllyHist']);
 Route::get('/tables/worldHistoryPlayer/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldPlayerHist']);
 Route::get('/tables/worldConquer/{server}/{world}/{type}', [\App\Http\Controllers\ConquerController::class, 'worldConquer']);
+Route::get('/tables/worldConquerDailyPlayer/{server}/{world}', [\App\Http\Controllers\ConquerController::class, 'worldConquerDailyPlayer']);
+Route::get('/tables/worldConquerDailyAlly/{server}/{world}', [\App\Http\Controllers\ConquerController::class, 'worldConquerDailyAlly']);
 
 //Select2
 Route::get('/select/village/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Village']);
