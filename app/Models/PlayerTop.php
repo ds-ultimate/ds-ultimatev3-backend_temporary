@@ -88,13 +88,6 @@ class PlayerTop extends CustomModel
         return $playerModel->find($player);
     }
     
-    public function getDate($variable) {
-        $variable .= "_date";
-        if(!in_array($variable, $this->fillable)) return "";
-        
-        $data = $this->$variable->format('d.m.Y');
-        return " (" . __("ui.topAt") . ' ' . $data . ")";
-    }
 
     public function signature() {
         return $this->morphMany(Signature::class, 'element');

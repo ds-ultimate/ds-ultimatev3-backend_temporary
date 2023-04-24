@@ -7,6 +7,7 @@ use Illuminate\Database\Query\Builder as DBBuilder;
 use Illuminate\Support\Facades\Response;
 
 class DataTable {
+    private $data;
     private $builder;
     private $whitelist = [];
     private $searchWhitelist = [];
@@ -18,8 +19,9 @@ class DataTable {
     private static $SORT_ASC = 0;
     private static $SORT_DESC = 1;
     
-    public function __construct(EqBuilder|DBBuilder $builder) {
+    public function __construct(EqBuilder|DBBuilder|null $builder, array|null $data) {
         $this->builder = $builder;
+        $this->data = $data;
     }
     
     public function setSearchWhitelist($searchWhitelist) {
@@ -56,6 +58,8 @@ class DataTable {
      * Tells us that we should render this now and print it to the api endpoint
      */
     public function toJson(callable $conversionFunction=null) {
+        abort_if($this->data !== null && !$this->clientSide, 500);
+        
         if($this->clientSide) {
             return $this->clientReturn($conversionFunction);
         } else {
@@ -63,8 +67,12 @@ class DataTable {
         }
     }
     
-    private function clientReturn(callable $conversionFunction) {
-        $data = $this->builder->get();
+    private function clientReturn(callable $conversionFunction=null) {
+        if($this->data !== null) {
+            $data = $this->data;
+        } else {
+            $data = $this->builder->get();
+        }
         
         if($this->prepHook !== null) {
             ($this->prepHook)($data);
@@ -85,7 +93,7 @@ class DataTable {
         ]);
     }
     
-    private function serverReturn(callable $conversionFunction) {
+    private function serverReturn(callable $conversionFunction=null) {
         $count = $this->builder->count();
         $params = $this->verifyParameters();
 
@@ -159,6 +167,10 @@ class DataTable {
     }
     
     public static function generate(EqBuilder|DBBuilder $builder) {
-        return new DataTable($builder);
+        return new DataTable($builder, null);
+    }
+    
+    public static function of(array $data) {
+        return new Datatable(null, $data);
     }
 }

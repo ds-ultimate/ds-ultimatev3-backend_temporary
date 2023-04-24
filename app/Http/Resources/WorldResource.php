@@ -21,6 +21,7 @@ class WorldResource extends CustomJsonResource
             "village_count",
             "active",
             "server__code",
+            "url",
         ]), [
             'hasConfig' => $this->config !== null,
             'hasUnits' => $this->units !== null,

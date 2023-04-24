@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Http\Resources\AllyResource;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
 
 class Ally extends CustomModel
 {
@@ -90,6 +89,36 @@ class Ally extends CustomModel
     public static function ally(World $world, $ally){
         $allyModel = new Ally($world);
         return $allyModel->find((int) $ally);
+    }
+
+    /**
+     * @param World $world
+     * @param int $ally
+     * @return array
+     */
+    public static function allyDataChart(World $world, $ally){
+        $allyID = (int) $ally;
+        $tabelNr = $allyID % ($world->hash_ally);
+
+        $allyModel = new Ally($world, 'ally_'.$tabelNr);
+
+        $allyDataArray = $allyModel->where('allyID', $allyID)->orderBy('updated_at', 'ASC')->get();
+
+        $allyDatas = [];
+
+        foreach ($allyDataArray as $ally){
+            $allyData = [];
+            $allyData['timestamp'] = (int)$ally->updated_at->timestamp;
+            $allyData['points'] = $ally->points;
+            $allyData['rank'] = $ally->rank;
+            $allyData['village'] = $ally->village_count;
+            $allyData['gesBash'] = $ally->gesBash;
+            $allyData['offBash'] = $ally->offBash;
+            $allyData['defBash'] = $ally->defBash;
+            $allyDatas[] = $allyData;
+        }
+
+        return $allyDatas;
     }
     
     public function toArray() {

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Resources\AllyTopResource;
+
 class AllyTop extends CustomModel
 {
     protected $primaryKey = 'allyID';
@@ -37,6 +39,17 @@ class AllyTop extends CustomModel
      * @var array<string, string>
      */
     protected $casts = [
+        'allyID' => 'integer',
+        'member_count_top' => 'integer',
+        'village_count_top' => 'integer',
+        'points_top' => 'integer',
+        'rank_top' => 'integer',
+        'offBash_top' => 'integer',
+        'offBashRank_top' => 'integer',
+        'defBash_top' => 'integer',
+        'defBashRank_top' => 'integer',
+        'gesBash_top' => 'integer',
+        'gesBashRank_top' => 'integer',
         'member_count_date' => 'datetime',
         'village_count_date' => 'datetime',
         'points_date' => 'datetime',
@@ -93,11 +106,7 @@ class AllyTop extends CustomModel
         return $allyModel->find($ally);
     }
     
-    public function getDate($variable) {
-        $variable .= "_date";
-        if(!in_array($variable, $this->fillable)) return "";
-        
-        $data = $this->$variable->format('d.m.Y');
-        return " (" . __("ui.topAt") . ' ' . $data . ")";
+    public function toArray() {
+        return new AllyTopResource($this);
     }
 }

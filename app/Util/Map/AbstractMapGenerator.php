@@ -73,14 +73,18 @@ abstract class AbstractMapGenerator extends PictureRender {
             $img_width = $dim["width"];
             $img_height = $img_width / $std_aspect;
         } else {
-            $img_height = 1000;
-            $img_width = $std_aspect * $img_height;
+            $img_height = null;
+            $img_width = null;
         }
-        $image = imagecreatetruecolor(round($img_width, 0), round($img_height, 0));
-        imagealphablending($image, true); //needed to work with alpha values
-        imagesavealpha($image, true);
-        
-        if($image === false) die("Error");
+        if($img_height !== null && $img_width !== null) {
+            $image = imagecreatetruecolor(round($img_width, 0), round($img_height, 0));
+            imagealphablending($image, true); //needed to work with alpha values
+            imagesavealpha($image, true);
+
+            if($image === false) die("Error");
+        } else {
+            $image = null;
+        }
 
         $this->setFont(public_path("/fonts/NotoMono-Regular.ttf"));
         $this->image = $image;
@@ -128,8 +132,14 @@ abstract class AbstractMapGenerator extends PictureRender {
         );
         $skinImage = $this->skin->render();
         
-        imagefill($this->image, 0, 0, imagecolorallocatealpha($this->image, 0, 0, 0, 127));
-        imagecopyresampled($this->image, $skinImage, 0, 0, 0, 0, $this->width, $this->height, imagesx($skinImage), imagesy($skinImage));
+        if($this->image === null) {
+            $this->image = $skinImage;
+            $this->width= imagesx($this->image);
+            $this->height = imagesy($this->image);
+        } else {
+            imagefill($this->image, 0, 0, imagecolorallocatealpha($this->image, 0, 0, 0, 127));
+            imagecopyresampled($this->image, $skinImage, 0, 0, 0, 0, $this->width, $this->height, imagesx($skinImage), imagesy($skinImage));
+        }
         
         $renderTime = round(microtime(true) - $startTime, 3);
         if($this->show_errs) {
