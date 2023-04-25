@@ -19,20 +19,24 @@ class ConquerController extends Controller
         'conquer.old_ally_name', 'conquer.new_ally_name', 'conquer.old_ally_tag',
         'conquer.new_ally_tag', 'village.name'];
     private static $conquerReturnValidate = [
-        'filter' => 'array',
+        'filter' => 'array:0,1,2,3,v,op,oa,np,na',
         'filter.0' => 'numeric|integer',
         'filter.1' => 'numeric|integer',
         'filter.2' => 'numeric|integer',
         'filter.3' => 'numeric|integer',
         //'filter.4' => 'numeric|integer', deleted is not possible
-        'filter.5' => 'numeric|integer',
-        'filter.6' => 'numeric|integer',
+        //'filter.5' => 'numeric|integer', this filtering is done by the type
+        //'filter.6' => 'numeric|integer', this filtering is done by the type
         'filter.v' => 'numeric|integer',
         'filter.op' => 'numeric|integer',
         'filter.oa' => 'numeric|integer',
         'filter.np' => 'numeric|integer',
         'filter.na' => 'numeric|integer',
     ];
+
+    public static $REFERTO_VILLAGE = 0;
+    public static $REFERTO_PLAYER = 1;
+    public static $REFERTO_ALLY = 2;
 
     public function worldConquer($server, $world, $type){
         $server = Server::getAndCheckServerByCode($server);
@@ -49,6 +53,39 @@ class ConquerController extends Controller
 
         return $this->doConquerReturn($query, $worldData);
     }
+
+    public function allyConquer($server, $world, $type, $allyID) {
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        
+        $query = Conquer::getJoinedQuery($worldData);
+        switch($type) {
+            case "all":
+                $query->where(function($q) use($allyID) {
+                    $q->orWhere('conquer.new_ally', $allyID)->orWhere('conquer.old_ally', $allyID);
+                });
+                break;
+            case "old":
+                $query->where(function($q) use($allyID) {
+                    $q->where('conquer.new_ally', "!=", $allyID)->where('conquer.old_ally', $allyID);
+                });
+                break;
+            case "new":
+                $query->where(function($q) use($allyID) {
+                    $q->where('conquer.new_ally', $allyID)->where('conquer.old_ally', "!=", $allyID);
+                });
+                break;
+            case "own":
+                $query->where(function($q) use($allyID) {
+                    $q->where('conquer.new_ally', $allyID)->where('conquer.old_ally', $allyID);
+                });
+                break;
+            default:
+                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+        }
+
+        return $this->doConquerReturn($query, $world);
+    }
     
     /**
      * Filter based on conquerChangeType + village / player / ally id
@@ -59,18 +96,13 @@ class ConquerController extends Controller
      * 2: self
      * 3: barbarian
      * 4: deletion
-     * 5: win
-     * 6: loose
      */
     private function doConquerReturn($dtQuery, $worldData) {
         $getArray = Request::validate(static::$conquerReturnValidate);
-        $filter = $getArray["filter"];
+        $filter = $getArray["filter"] ?? [];
         
         $filterCb = function($query) use($filter) {
             $query->where(function($q) use($filter) {
-                if(isset($filter[5]) || isset($filter[6])) {
-                    dd("This needs to be implemented :)");
-                }
                 if(($filter[0] ?? 1) && ($filter[1] ?? 1) && ($filter[2] ?? 1) &&
                         ($filter[3] ?? 1)) { //&& ($filter[4] ?? 1)
                     return;

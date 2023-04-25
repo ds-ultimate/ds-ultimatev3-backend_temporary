@@ -6,8 +6,6 @@ use App\Http\Resources\ConquerResource;
 
 class Conquer extends CustomModel
 {
-    protected $table = 'conquer';
-    
     protected $fillable = [
         'village_id',
         'timestamp',
@@ -124,15 +122,10 @@ class Conquer extends CustomModel
         $conquerModel = new Conquer($world);
         $playerModel = new Player($world);
 
-        $allyPlayers = array();
-        foreach ($playerModel->newQuery()->where('ally_id', $allyID)->get() as $player) {
-            $allyPlayers[] = $player->playerID;
-        }
-
         $conquer = [];
-        $conquer['old'] = $conquerModel->whereIn('old_owner', $allyPlayers)->whereNotIn('new_owner', $allyPlayers)->count();
-        $conquer['new'] = $conquerModel->whereNotIn('old_owner', $allyPlayers)->whereIn('new_owner', $allyPlayers)->count();
-        $conquer['own'] = $conquerModel->whereIn('old_owner', $allyPlayers)->whereIn('new_owner', $allyPlayers)->count();
+        $conquer['old'] = $conquerModel->where('old_ally', $allyID)->whereNot('new_ally', $allyID)->count();
+        $conquer['new'] = $conquerModel->whereNot('old_ally', $allyID)->where('new_ally', $allyID)->count();
+        $conquer['own'] = $conquerModel->where('old_ally', $allyID)->where('new_ally', $allyID)->count();
         $conquer['total'] = $conquer['old'] + $conquer['new'] + $conquer['own'];
 
         return $conquer;

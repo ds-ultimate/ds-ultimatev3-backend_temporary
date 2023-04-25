@@ -75,7 +75,7 @@ class Player extends CustomModel
      */
     public function allyChanges()
     {
-        return $this->myhasMany(AllyChanges::class, 'player_id', 'playerID', $this->getRelativeTable("ally_changes"));
+        return $this->myhasMany(AllyChange::class, 'player_id', 'playerID', $this->getRelativeTable("ally_changes"));
     }
 
     /**

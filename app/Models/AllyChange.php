@@ -2,10 +2,35 @@
 
 namespace App\Models;
 
-class AllyChanges extends CustomModel
+use App\Http\Resources\AllyChangeResource;
+
+class AllyChange extends CustomModel
 {
     
     protected $defaultTableName = "ally_changes";
+
+    protected $fillable = [
+        'player_id',
+        'old_ally_id',
+        'new_ally_id',
+        'points',
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'player_id' => 'integer',
+        'old_ally_id' => 'integer',
+        'new_ally_id' => 'integer',
+        'points' => 'integer',
+        'crated_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     public function __construct($arg1 = [], $arg2 = null)
     {
@@ -70,7 +95,7 @@ class AllyChanges extends CustomModel
      * @return int
      */
     public static function playerAllyChangeCount(World $world, $playerID){
-        $allyChangesModel = new AllyChanges($world);
+        $allyChangesModel = new AllyChange($world);
         
         $allyChanges = [];
         $allyChanges['total'] = $allyChangesModel->where('player_id', $playerID)->count();
@@ -83,12 +108,28 @@ class AllyChanges extends CustomModel
      * @return \Illuminate\Support\Collection
      */
     public static function allyAllyChangeCounts(World $world, $allyID){
-        $allyChangesModel = new AllyChanges($world);
+        $allyChangesModel = new AllyChange($world);
         
         $allyChanges = [];
         $allyChanges['old'] = $allyChangesModel->where('old_ally_id', $allyID)->count();
         $allyChanges['new'] = $allyChangesModel->where('new_ally_id', $allyID)->count();
         $allyChanges['total'] = $allyChanges['old'] + $allyChanges['new'];
         return $allyChanges;
+    }
+    
+    public static function getJoinedQuery(World $world) {
+        $a = new AllyChange($world);
+        return $a->select(["ally_change.*", "player.name as player__name",
+            "ally_old.name as ally_old__name", "ally_old.tag as ally_old__tag",
+            "ally_new.name as ally_new__name", "ally_new.tag as ally_new__tag"])
+                ->from($a->getTable(), "ally_change")
+                ->leftjoin($a->getRelativeTable("player_top") . " as player", 'player.playerID', '=', 'ally_change.player_id')
+                ->leftjoin($a->getRelativeTable("ally_top") . " as ally_old", 'ally_old.allyID', '=', 'ally_change.old_ally_id')
+                ->leftjoin($a->getRelativeTable("ally_top") . " as ally_new", 'ally_new.allyID', '=', 'ally_change.new_ally_id')
+                ->setEagerLoads([]);
+    }
+    
+    public function toArray() {
+        return new AllyChangeResource($this);
     }
 }

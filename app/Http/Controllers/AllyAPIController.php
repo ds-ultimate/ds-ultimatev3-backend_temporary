@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ally;
 use App\Models\AllyTop;
-use App\Models\AllyChanges;
+use App\Models\AllyChange;
 use App\Models\Conquer;
 use App\Models\Player;
 use App\Models\Server;
@@ -23,7 +23,7 @@ class AllyAPIController extends Controller
         $allyTopData = AllyTop::ally($worldData, $ally);
         
         $conquer = Conquer::allyConquerCounts($worldData, $ally);
-        $allyChanges = AllyChanges::allyAllyChangeCounts($worldData, $ally);
+        $allyChanges = AllyChange::allyAllyChangeCounts($worldData, $ally);
         
         abort_if($allyData == null && $allyTopData == null, 404, __("ui.errors.404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally]));
         return Response::json([

@@ -55,19 +55,19 @@ class Ally extends CustomModel
     }
 
     /**
-     * @return AllyChanges
+     * @return AllyChange
      */
     public function allyChangesOld()
     {
-        return $this->myhasMany(AllyChanges::class, 'old_ally_id', 'allyID', $this->getRelativeTable("ally_changes"));
+        return $this->myhasMany(AllyChange::class, 'old_ally_id', 'allyID', $this->getRelativeTable("ally_changes"));
     }
 
     /**
-     * @return AllyChanges
+     * @return AllyChange
      */
     public function allyChangesNew()
     {
-        return $this->myhasMany(AllyChanges::class, 'new_ally_id', 'allyID', $this->getRelativeTable("ally_changes"));
+        return $this->myhasMany(AllyChange::class, 'new_ally_id', 'allyID', $this->getRelativeTable("ally_changes"));
     }
 
     /**
