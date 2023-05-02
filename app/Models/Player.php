@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Http\Resources\PlayerResource;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
 
 class Player extends CustomModel
 {
@@ -124,6 +123,42 @@ class Player extends CustomModel
         $sig->world_id = $worldData->id;
         $this->signature()->save($sig);
         return $sig;
+    }
+    /**
+     * @param World $world
+     * @param int $playerID
+     * @return \Illuminate\Support\Collection
+     */
+    public static function playerDataChart(World $world, $player, $dayDelta = 30) {
+        $playerID = (int) $player;
+        $tabelNr = $playerID % $world->hash_player;
+        $playerModel = new Player($world, "player_$tabelNr");
+        $playerDataArray = $playerModel
+                ->where('playerID', $playerID)
+                ->orderBy('updated_at', 'ASC')->get();
+
+        $playerDatas = [];
+        if(count($playerDataArray) < 1) {
+            return $playerDatas;
+        }
+        
+        $earliestDate = $playerDataArray[count($playerDataArray) - 1]->updated_at->subDays($dayDelta);
+        foreach ($playerDataArray as $p) {
+            if($p->updated_at->lt($earliestDate)) continue;
+            
+            $playerDatas[] = [
+                'timestamp' => (int)$p->updated_at->timestamp,
+                'points' => $p->points,
+                'rank' => $p->rank,
+                'village' => $p->village_count,
+                'gesBash' => $p->gesBash,
+                'offBash' => $p->offBash,
+                'defBash' => $p->defBash,
+                'supBash' => $p->supBash,
+            ];
+        }
+
+        return $playerDatas;
     }
     
     public function toArray() {

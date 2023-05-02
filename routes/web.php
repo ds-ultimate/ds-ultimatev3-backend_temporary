@@ -21,6 +21,9 @@ Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIC
 Route::get('/worldExtendedData/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldExtendedData']);
 Route::get('/allyBasicData/{server}/{world}/{ally}', [\App\Http\Controllers\AllyAPIController::class, 'allyBasicData']);
 Route::get('/allyChartData/{server}/{world}/{ally}', [\App\Http\Controllers\AllyAPIController::class, 'allyChartData']);
+Route::get('/playerBasicData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerBasicData']);
+Route::get('/playerChartData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerChartData']);
+Route::get('/playerWorldPopup/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerWorldPopup']);
 
 //Datatables
 Route::get('/tables/worldAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAlly']);
@@ -34,6 +37,8 @@ Route::get('/tables/allyPlayer/{server}/{world}/{ally}', [\App\Http\Controllers\
 Route::get('/tables/allyAllyHistory/{server}/{world}/{ally}', [\App\Http\Controllers\AllyAPIController::class, 'allyAllyHist']);
 Route::get('/tables/allyConquer/{server}/{world}/{type}/{ally}', [\App\Http\Controllers\ConquerController::class, 'allyConquer']);
 Route::get('/tables/allyAllyChange/{server}/{world}/{type}/{ally}', [\App\Http\Controllers\AllyChangeController::class, 'allyAllyChange']);
+Route::get('/tables/playerVillage/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerVillage']);
+Route::get('/tables/playerPlayerHistory/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerPlayerHistory']);
 
 //Select2
 Route::get('/select/village/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Village']);

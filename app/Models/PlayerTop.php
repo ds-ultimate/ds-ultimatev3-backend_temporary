@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Resources\PlayerTopResource;
+
 class PlayerTop extends CustomModel
 {
     protected $primaryKey = 'playerID';
@@ -38,6 +40,18 @@ class PlayerTop extends CustomModel
      * @var array<string, string>
      */
     protected $casts = [
+        'playerID' => 'integer',
+        'rank_top' => 'integer',
+        'village_count_top' => 'integer',
+        'points_top' => 'integer',
+        'offBash_top' => 'integer',
+        'offBashRank_top' => 'integer',
+        'defBash_top' => 'integer',
+        'defBashRank_top' => 'integer',
+        'supBash_top' => 'integer',
+        'supBashRank_top' => 'integer',
+        'gesBash_top' => 'integer',
+        'gesBashRank_top' => 'integer',
         'rank_date' => 'datetime',
         'village_count_date' => 'datetime',
         'points_date' => 'datetime',
@@ -60,14 +74,6 @@ class PlayerTop extends CustomModel
             $arg2 = $this->defaultTableName;
         }
         parent::__construct($arg1, $arg2);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function allyLatest()
-    {
-        return $this->mybelongsTo(PlayerTop::class, 'ally_id', 'allyID', $this->getRelativeTable("ally_latest"));
     }
 
     /**
@@ -103,5 +109,9 @@ class PlayerTop extends CustomModel
         $sig->world_id = $worldData->id;
         $this->signature()->save($sig);
         return $sig;
+    }
+    
+    public function toArray() {
+        return new PlayerTopResource($this);
     }
 }

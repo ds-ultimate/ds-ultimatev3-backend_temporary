@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Resources\VillageResource;
+
 class Village extends CustomModel
 {
     protected $primaryKey = 'villageID';
@@ -47,12 +49,12 @@ class Village extends CustomModel
         return $villageModel->find($village);
     }
     
-    public function getHistoryData(World $world) {
-        $villageID = (int) $this->villageID;
-        $tableNr = $villageID % $world->hash_village;
-        $villageModel = new Village($world, "village_$tableNr");
-        
-        $villageDataArray = $villageModel->where('villageID', $villageID)->orderBy('updated_at', 'ASC')->get();
-        return $villageDataArray;
+    public static function getJoinedQuery(World $world) {
+        $v = new Village($world);
+        return $v->newQuery();
+    }
+    
+    public function toArray() {
+        return new VillageResource($this);
     }
 }

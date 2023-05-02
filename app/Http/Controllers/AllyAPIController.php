@@ -18,14 +18,15 @@ class AllyAPIController extends Controller
     public function allyBasicData($server, $world, $ally){
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
+        $ally_id = (int) $ally;
 
-        $allyData = Ally::ally($worldData, $ally);
-        $allyTopData = AllyTop::ally($worldData, $ally);
+        $allyData = Ally::ally($worldData, $ally_id);
+        $allyTopData = AllyTop::ally($worldData, $ally_id);
         
-        $conquer = Conquer::allyConquerCounts($worldData, $ally);
-        $allyChanges = AllyChange::allyAllyChangeCounts($worldData, $ally);
+        $conquer = Conquer::allyConquerCounts($worldData, $ally_id);
+        $allyChanges = AllyChange::allyAllyChangeCounts($worldData, $ally_id);
         
-        abort_if($allyData == null && $allyTopData == null, 404, __("ui.errors.404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally]));
+        abort_if($allyData == null && $allyTopData == null, 404, __("ui.errors.404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally_id]));
         return Response::json([
             "cur" => $allyData,
             "top" => $allyTopData,
@@ -77,14 +78,15 @@ class AllyAPIController extends Controller
     public function allyChartData($server, $world, $ally) {
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
+        $ally_id = (int) $ally;
         
-        $allyData = Ally::ally($worldData, $ally);
+        $allyData = Ally::ally($worldData, $ally_id);
         abort_if($allyData == null, 404);
         
         $statsGeneral = ['points', 'rank', 'village'];
         $statsBash = ['gesBash', 'offBash', 'defBash'];
 
-        $datas = Ally::allyDataChart($worldData, $ally);
+        $datas = Ally::allyDataChart($worldData, $ally_id);
         if(count($datas) < 1) {
             $datas[] = [
                 "timestamp" => time(),
@@ -115,7 +117,6 @@ class AllyAPIController extends Controller
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
         $ally_id = (int) $ally;
-
         
         $query = Player::getJoinedQuery($worldData);
         $query->where("ally_id", $ally_id);

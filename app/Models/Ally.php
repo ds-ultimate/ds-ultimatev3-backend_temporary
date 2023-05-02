@@ -96,26 +96,32 @@ class Ally extends CustomModel
      * @param int $ally
      * @return array
      */
-    public static function allyDataChart(World $world, $ally){
+    public static function allyDataChart(World $world, $ally, $dayDelta = 30) {
         $allyID = (int) $ally;
         $tabelNr = $allyID % ($world->hash_ally);
-
         $allyModel = new Ally($world, 'ally_'.$tabelNr);
-
-        $allyDataArray = $allyModel->where('allyID', $allyID)->orderBy('updated_at', 'ASC')->get();
+        $allyDataArray = $allyModel
+                ->where('allyID', $allyID)
+                ->orderBy('updated_at', 'ASC')->get();
 
         $allyDatas = [];
-
-        foreach ($allyDataArray as $ally){
-            $allyData = [];
-            $allyData['timestamp'] = (int)$ally->updated_at->timestamp;
-            $allyData['points'] = $ally->points;
-            $allyData['rank'] = $ally->rank;
-            $allyData['village'] = $ally->village_count;
-            $allyData['gesBash'] = $ally->gesBash;
-            $allyData['offBash'] = $ally->offBash;
-            $allyData['defBash'] = $ally->defBash;
-            $allyDatas[] = $allyData;
+        if(count($allyDataArray) < 1) {
+            return $allyDatas;
+        }
+        
+        $earliestDate = $allyDataArray[count($allyDataArray) - 1]->updated_at->subDays($dayDelta);
+        foreach ($allyDataArray as $a) {
+            if($a->updated_at->lt($earliestDate)) continue;
+            
+            $allyDatas[] = [
+                'timestamp' => (int)$a->updated_at->timestamp,
+                'points' => $a->points,
+                'rank' => $a->rank,
+                'village' => $a->village_count,
+                'gesBash' => $a->gesBash,
+                'offBash' => $a->offBash,
+                'defBash' => $a->defBash,
+            ];
         }
 
         return $allyDatas;
