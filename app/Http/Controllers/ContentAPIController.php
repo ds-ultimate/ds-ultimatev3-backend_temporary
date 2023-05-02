@@ -58,6 +58,6 @@ class ContentAPIController extends Controller
             "config" => $config,
             "buildings" => $buildingConfig,
             "units" => $unitConfig,
-        ]);
+        ], options: JSON_NUMERIC_CHECK);
     }
 }
