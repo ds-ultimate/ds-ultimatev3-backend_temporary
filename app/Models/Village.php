@@ -10,6 +10,20 @@ class Village extends CustomModel
     protected $fillable =[
         'villageID', 'name', 'x', 'y', 'points', 'owner', 'bonus_id',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'villageID' => 'integer',
+        'x' => 'integer',
+        'y' => 'integer',
+        'points' => 'integer',
+        'owner' => 'integer',
+        'bonus_id' => 'integer',
+    ];
     
     public $timestamps = true;
     

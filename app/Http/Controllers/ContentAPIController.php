@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ally;
-use App\Models\Changelog;
 use App\Models\Conquer;
 use App\Models\News;
 use App\Models\Player;
 use App\Models\Server;
 use App\Models\World;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Response;
 
 class ContentAPIController extends Controller
