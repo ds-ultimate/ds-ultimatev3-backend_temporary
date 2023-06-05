@@ -86,6 +86,39 @@ class ConquerController extends Controller
 
         return $this->doConquerReturn($query, $world);
     }
+
+    public function playerConquer($server, $world, $type, $playerID) {
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        
+        $query = Conquer::getJoinedQuery($worldData);
+        switch($type) {
+            case "all":
+                $query->where(function($q) use($playerID) {
+                    $q->orWhere('conquer.new_owner', $playerID)->orWhere('conquer.old_owner', $playerID);
+                });
+                break;
+            case "old":
+                $query->where(function($q) use($playerID) {
+                    $q->where('conquer.new_owner', "!=", $playerID)->where('conquer.old_owner', $playerID);
+                });
+                break;
+            case "new":
+                $query->where(function($q) use($playerID) {
+                    $q->where('conquer.new_owner', $playerID)->where('conquer.old_owner', "!=", $playerID);
+                });
+                break;
+            case "own":
+                $query->where(function($q) use($playerID) {
+                    $q->where('conquer.new_owner', $playerID)->where('conquer.old_owner', $playerID);
+                });
+                break;
+            default:
+                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+        }
+
+        return $this->doConquerReturn($query, $world);
+    }
     
     /**
      * Filter based on conquerChangeType + village / player / ally id

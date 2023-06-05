@@ -46,6 +46,24 @@ class AllyChangeController extends Controller
         return $this->doAllyChangeReturn($query);
     }
     
+    public function playerAllyChange($server, $world, $type, $playerID)
+    {
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        
+        $query = AllyChange::getJoinedQuery($worldData);
+        
+        switch($type) {
+            case "all":
+                $query->where('ally_change.player_id', $playerID);
+                break;
+            default:
+                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+        }
+
+        return $this->doAllyChangeReturn($query);
+    }
+    
     private function doAllyChangeReturn($dtQuery) {
         $getArray = Request::validate(static::$conquerReturnValidate);
         $filter = $getArray["filter"] ?? [];
