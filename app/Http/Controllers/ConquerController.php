@@ -6,6 +6,7 @@ use App\Models\Conquer;
 use App\Models\Server;
 use App\Models\World;
 use App\Http\Resources\ConquerResource;
+use App\Util\BasicFunctions;
 use App\Util\DataTable;
 
 use Carbon\Carbon;
@@ -47,8 +48,7 @@ class ConquerController extends Controller
             case 'all':
                 break;
             default:
-                //TODO localized error messages current idea: return translation idx + params
-                abort(404);
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
         }
 
         return $this->doConquerReturn($query, $worldData);
@@ -81,7 +81,7 @@ class ConquerController extends Controller
                 });
                 break;
             default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
         }
 
         return $this->doConquerReturn($query, $world);
@@ -114,7 +114,23 @@ class ConquerController extends Controller
                 });
                 break;
             default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
+        }
+
+        return $this->doConquerReturn($query, $world);
+    }
+
+    public function villageConquer($server, $world, $type, $villageID) {
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        
+        $query = Conquer::getJoinedQuery($worldData);
+        switch($type) {
+            case "all":
+                $query->where('conquer.village_id', $villageID);
+                break;
+            default:
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
         }
 
         return $this->doConquerReturn($query, $world);

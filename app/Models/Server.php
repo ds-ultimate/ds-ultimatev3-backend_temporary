@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Util\BasicFunctions;
 use App\Http\Resources\ServerResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -61,7 +62,7 @@ class Server extends Model
      */
     public static function getAndCheckServerByCode($server, $withWorlds=false){
         $serverData = Server::getServerByCode($server, $withWorlds);
-        abort_if($serverData == null, 404, __("ui.errors.404.noServer", ["server" => $server]));
+        BasicFunctions::abort_if_translated($serverData == null, 404, "404.noServer", ["server" => $server]);
         return $serverData;
     }
 

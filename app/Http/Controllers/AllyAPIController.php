@@ -9,6 +9,7 @@ use App\Models\Conquer;
 use App\Models\Player;
 use App\Models\Server;
 use App\Models\World;
+use App\Util\BasicFunctions;
 use App\Util\Chart;
 use App\Util\DataTable;
 use Illuminate\Support\Facades\Response;
@@ -26,7 +27,8 @@ class AllyAPIController extends Controller
         $conquer = Conquer::allyConquerCounts($worldData, $ally_id);
         $allyChanges = AllyChange::allyAllyChangeCounts($worldData, $ally_id);
         
-        abort_if($allyData == null && $allyTopData == null, 404, __("ui.errors.404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally_id]));
+        BasicFunctions::abort_if_translated($allyData == null && $allyTopData == null, 404,
+                "404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally_id]);
         return Response::json([
             "cur" => $allyData,
             "top" => $allyTopData,
@@ -81,7 +83,8 @@ class AllyAPIController extends Controller
         $ally_id = (int) $ally;
         
         $allyData = Ally::ally($worldData, $ally_id);
-        abort_if($allyData == null, 404);
+        BasicFunctions::abort_if_translated($allyData == null, 404,
+                "404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally_id]);
         
         $statsGeneral = ['points', 'rank', 'village'];
         $statsBash = ['gesBash', 'offBash', 'defBash'];

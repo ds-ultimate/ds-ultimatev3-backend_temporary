@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [\App\Http\Controllers\WebController::class, 'index']);
 
 Route::get('/indexPage', [\App\Http\Controllers\ContentAPIController::class, 'index']);
+Route::get('/changelogPage', [\App\Http\Controllers\ContentAPIController::class, 'changelog']);
+
 Route::get('/serverGetWorlds/{server}', [\App\Http\Controllers\ContentAPIController::class, 'serverGetWorlds']);
 Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldOverview']);
 Route::get('/worldExtendedData/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldExtendedData']);
@@ -24,6 +26,7 @@ Route::get('/allyChartData/{server}/{world}/{ally}', [\App\Http\Controllers\Ally
 Route::get('/playerBasicData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerBasicData']);
 Route::get('/playerChartData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerChartData']);
 Route::get('/playerWorldPopup/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerWorldPopup']);
+Route::get('/villageBasicData/{server}/{world}/{player}', [\App\Http\Controllers\VillageAPIController::class, 'villageBasicData']);
 
 //Datatables
 Route::get('/tables/worldAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAlly']);
@@ -41,6 +44,7 @@ Route::get('/tables/playerVillage/{server}/{world}/{player}', [\App\Http\Control
 Route::get('/tables/playerPlayerHistory/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerPlayerHistory']);
 Route::get('/tables/playerConquer/{server}/{world}/{type}/{player}', [\App\Http\Controllers\ConquerController::class, 'playerConquer']);
 Route::get('/tables/playerAllyChange/{server}/{world}/{type}/{player}', [\App\Http\Controllers\AllyChangeController::class, 'playerAllyChange']);
+Route::get('/tables/villageConquer/{server}/{world}/{type}/{village}', [\App\Http\Controllers\ConquerController::class, 'villageConquer']);
 
 //Select2
 Route::get('/select/village/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Village']);

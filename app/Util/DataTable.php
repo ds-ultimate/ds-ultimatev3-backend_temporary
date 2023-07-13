@@ -58,6 +58,7 @@ class DataTable {
      * Tells us that we should render this now and print it to the api endpoint
      */
     public function toJson(callable $conversionFunction=null) {
+        //TODO this should maybe a throw Exception?
         abort_if($this->data !== null && !$this->clientSide, 500);
         
         if($this->clientSide) {

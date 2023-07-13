@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\ChangelogResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,4 +19,8 @@ class Changelog extends Model
         'icon',
         'color',
     ];
+    
+    public function toArray() {
+        return new ChangelogResource($this);
+    }
 }

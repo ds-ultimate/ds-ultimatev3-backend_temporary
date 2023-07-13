@@ -10,6 +10,8 @@ use App\Models\PlayerTop;
 use App\Models\Server;
 use App\Models\Village;
 use App\Models\World;
+use App\Http\Resources\VillageResource;
+use App\Util\BasicFunctions;
 use App\Util\Chart;
 use App\Util\DataTable;
 use Illuminate\Support\Facades\Response;
@@ -29,7 +31,9 @@ class PlayerAPIController extends Controller
         //TODO create a job that deletes duplicate playerOtherServers and also make sure that this does not happen again
         $playerOtherServers = PlayerOtherServers::player($worldData->server, $player_id);
         
-        abort_if($playerData == null && $playerTopData == null, 404, __("ui.errors.404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]));
+        BasicFunctions::abort_if_translated($playerData == null && $playerTopData == null, 404,
+                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]);
+
         return Response::json([
             "cur" => $playerData,
             "top" => $playerTopData,
@@ -81,8 +85,9 @@ class PlayerAPIController extends Controller
         $worldData = World::getAndCheckWorld($server, $world);
         $player_id = (int) $player;
 
-        $playerData = Player::player($worldData, $player_id);
-        abort_if($playerData == null, 404);
+        $playerData = Player::player($worldData, $player_id, __("ui.errors.404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]));
+        BasicFunctions::abort_if_translated($playerData == null, 404,
+                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]);
         
         $statsGeneral = ['points', 'rank', 'village'];
         $statsBash = ['gesBash', 'offBash', 'defBash', 'supBash'];
@@ -115,7 +120,7 @@ class PlayerAPIController extends Controller
         return Response::json($chartData);
     }
         
-    public function playerVillage($server, $world, $player) { 
+    public function playerVillage($server, $world, $player) {
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
         $player_id = (int) $player;
@@ -127,75 +132,18 @@ class PlayerAPIController extends Controller
             ->clientSide()
             ->setWhitelist([])
             ->setSearchWhitelist([])
-            ->toJson();
+            ->toJson(function($entry) {
+                return new VillageResource($entry, false);
+            });
     }
     
-    public function playerWorldPopup(World $world, $playerId){
-        $playerData = PlayerTop::player($world, $playerId);
-        abort_if($playerData == null, 404, __("ui.errors.404.playerNotFound", ["world" => $world->getDistplayName(), "player" => $playerId]));
+    public function playerWorldPopup(World $world, $player) {
+        $player_id = (int) $player;
+        $playerData = PlayerTop::player($world, $player_id);
+        BasicFunctions::abort_if_translated($playerData == null, 404,
+                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]);
         return Response::json([
             "top" => $playerData,
         ]);
-    }
-    
-    //TODO allyChanges -> just front end backend moves to allyChangeController
-    public function allyChanges($server, $world, $type, $playerID) {
-        $server = Server::getAndCheckServerByCode($server);
-        $worldData = World::getAndCheckWorld($server, $world);
-
-        $playerTopData = PlayerTop::player($worldData, $playerID);
-        abort_if($playerTopData == null, 404, __("ui.errors.404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $playerID]));
-
-        switch($type) {
-            case "all":
-                $typeName = ucfirst(__('ui.allyChanges.all'));
-                break;
-            default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
-        }
-        return view('content.playerAllyChange', compact('worldData', 'server', 'playerTopData', 'typeName', 'type'));
-    }
-    
-    //TODO conquer -> just front end backend moves to conquerController
-    public function conquer($server, $world, $type, $playerID) {
-        $server = Server::getAndCheckServerByCode($server);
-        $worldData = World::getAndCheckWorld($server, $world);
-        
-        $playerTopData = PlayerTop::player($worldData, $playerID);
-        abort_if($playerTopData == null, 404, __("ui.errors.404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $playerID]));
-
-        switch($type) {
-            case "all":
-                $typeName = ucfirst(__('ui.conquer.all'));
-                break;
-            case "old":
-                $typeName = ucfirst(__('ui.conquer.lost'));
-                break;
-            case "new":
-                $typeName = ucfirst(__('ui.conquer.won'));
-                break;
-            case "own":
-                $typeName = ucfirst(__('ui.conquer.playerOwn'));
-                break;
-            default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
-        }
-        
-        $allHighlight = ['s', 'i', 'b', 'd', 'w', 'l'];
-        if(\Auth::check()) {
-            $profile = \Auth::user()->profile;
-            $userHighlight = explode(":", $profile->conquerHightlight_Player);
-        } else {
-            $userHighlight = $allHighlight;
-        }
-        
-        $who = BasicFunctions::decodeName($playerTopData->name);
-        $routeDatatableAPI = route('api.playerConquer', [$worldData->id, $type, $playerTopData->playerID]);
-        $routeHighlightSaving = route('user.saveConquerHighlighting', ['player']);
-        $tableStateName = "tableStateName";
-        
-        return view('content.conquer', compact('server', 'worldData', 'typeName',
-                'who', 'routeDatatableAPI', 'routeHighlightSaving',
-                'allHighlight', 'userHighlight', 'tableStateName'));
     }
 }

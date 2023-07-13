@@ -28,6 +28,8 @@ class Village extends CustomModel
     public $timestamps = true;
     
     protected $defaultTableName = "village_latest";
+    
+    protected $with = ['playerLatest'];
 
     public function __construct($arg1 = [], $arg2 = null)
     {
@@ -44,6 +46,29 @@ class Village extends CustomModel
     public function playerLatest()
     {
         return $this->mybelongsTo(Player::class, 'owner', 'playerID', $this->getRelativeTable("player_latest"));
+    }
+
+    /**
+     * @param World $world
+     * @param int $villageID
+     * @return \Illuminate\Support\Collection
+     */
+    public static function villageDataChart(World $world, $villageID){
+        $villageID = (int) $villageID;
+        $tabelNr = $villageID % $world->hash_village;
+        $villageModel = new Village($world, "village_$tabelNr");
+        
+        $villageDataArray = $villageModel->where('villageID', $villageID)->orderBy('updated_at', 'ASC')->get();
+
+        $villageDatas = [];
+        foreach ($villageDataArray as $village){
+            $villageDatas[] = [
+                'timestamp' => (int)$village->updated_at->timestamp,
+                'points' => $village->points,
+            ];
+        }
+
+        return $villageDatas;
     }
 
     /**
@@ -65,7 +90,8 @@ class Village extends CustomModel
     
     public static function getJoinedQuery(World $world) {
         $v = new Village($world);
-        return $v->newQuery();
+        return $v->newQuery()
+                ->setEagerLoads([]);
     }
     
     public function toArray() {

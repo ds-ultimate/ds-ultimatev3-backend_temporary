@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Player;
 use App\Models\Server;
 use App\Models\World;
+use App\Util\BasicFunctions;
 use App\Util\Map\AbstractMapGenerator;
 use App\Util\Map\SkinSymbols;
 use App\Util\Map\SQLMapGenerator;
@@ -29,7 +30,7 @@ class MapController extends BaseController
                 $map->markVillage($id, [255, 255, 255], false, true);
                 break;
             default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
         }
         $map->setLayerOrder([AbstractMapGenerator::$LAYER_MARK, AbstractMapGenerator::$LAYER_GRID]);
         $map->setMapDimensions([

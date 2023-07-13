@@ -132,4 +132,12 @@ class BasicFunctions
         $replace = array("\\\\", "\\%", "\\_", "[[]", "[]]", "\\'", "\\\"");
         return str_replace($search, $replace, $toEscape);
     }
+    
+    public static function abort_if_translated($bool, $code, $key, $params) {
+        abort_if($bool, $code, "CUSTOM_" . json_encode(["k" => $key, "p" => $params]));
+    }
+    
+    public static function abort_translated($code, $key, $params) {
+        abort($code, "CUSTOM_" . json_encode(["k" => $key, "p" => $params]));
+    }
 }

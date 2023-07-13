@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ally;
+use App\Models\Changelog;
 use App\Models\Conquer;
 use App\Models\News;
 use App\Models\Player;
@@ -57,5 +58,10 @@ class ContentAPIController extends Controller
             "buildings" => $buildingConfig,
             "units" => $unitConfig,
         ], options: JSON_NUMERIC_CHECK);
+    }
+    
+    public function changelog(){
+        $changelog = new Changelog();
+        return Response::json($changelog->orderBy("created_at", "DESC")->get());
     }
 }

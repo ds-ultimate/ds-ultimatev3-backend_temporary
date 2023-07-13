@@ -232,8 +232,8 @@ class World extends CustomModel
             $serverData = Server::getAndCheckServerByCode($server);
         }
         $worldData = World::where('name', $world)->where('server_id', $serverData->id)->first();
-        abort_if($worldData == null, 404, __("ui.errors.404.noWorld", ["world" => "{$serverData->code}$world"]));
-        abort_if($worldData->maintananceMode, 503);
+        BasicFunctions::abort_if_translated($worldData == null, 404, "404.noWorld", ["world" => "{$serverData->code}$world"]);
+        BasicFunctions::abort_if_translated($worldData->maintananceMode, 503, "503.worldDown", ["world" => "{$serverData->code}$world"]);
         return $worldData;
     }
     

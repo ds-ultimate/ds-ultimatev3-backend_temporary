@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AllyChange;
 use App\Models\Server;
 use App\Models\World;
+use App\Util\BasicFunctions;
 use App\Util\DataTable;
 
 use Illuminate\Support\Facades\Request;
@@ -40,7 +41,7 @@ class AllyChangeController extends Controller
                 $query->where('ally_change.new_ally_id', $allyID);
                 break;
             default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
         }
 
         return $this->doAllyChangeReturn($query);
@@ -58,7 +59,7 @@ class AllyChangeController extends Controller
                 $query->where('ally_change.player_id', $playerID);
                 break;
             default:
-                abort(404, __("ui.errors.404.unknownType", ["type" => $type]));
+                BasicFunctions::abort_translated(404, "404.unknownType", ["type" => $type]);
         }
 
         return $this->doAllyChangeReturn($query);
