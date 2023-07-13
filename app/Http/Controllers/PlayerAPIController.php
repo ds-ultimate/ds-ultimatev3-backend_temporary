@@ -32,7 +32,8 @@ class PlayerAPIController extends Controller
         $playerOtherServers = PlayerOtherServers::player($worldData->server, $player_id);
         
         BasicFunctions::abort_if_translated($playerData == null && $playerTopData == null, 404,
-                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]);
+                "404.playerNotFound", ["world" => $worldData->getDisplayName(), "player" => $player_id,
+                "interpolation" => ["skipOnVariables" => false]]);
 
         return Response::json([
             "cur" => $playerData,
@@ -85,9 +86,10 @@ class PlayerAPIController extends Controller
         $worldData = World::getAndCheckWorld($server, $world);
         $player_id = (int) $player;
 
-        $playerData = Player::player($worldData, $player_id, __("ui.errors.404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]));
+        $playerData = Player::player($worldData, $player_id, __("404.playerNotFound", ["world" => $worldData->server->code.$worldData->name, "player" => $player_id]));
         BasicFunctions::abort_if_translated($playerData == null, 404,
-                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]);
+                "404.playerNotFound", ["world" => $worldData->getDisplayName(), "player" => $player_id,
+                "interpolation" => ["skipOnVariables" => false]]);
         
         $statsGeneral = ['points', 'rank', 'village'];
         $statsBash = ['gesBash', 'offBash', 'defBash', 'supBash'];
@@ -141,7 +143,8 @@ class PlayerAPIController extends Controller
         $player_id = (int) $player;
         $playerData = PlayerTop::player($world, $player_id);
         BasicFunctions::abort_if_translated($playerData == null, 404,
-                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "player" => $player_id]);
+                "404.playerNotFound", ["world" => $worldData->getDisplayName(), "player" => $player_id,
+                "interpolation" => ["skipOnVariables" => false]]);
         return Response::json([
             "top" => $playerData,
         ]);

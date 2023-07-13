@@ -89,30 +89,9 @@ class World extends CustomModel
             return "classic";
         }
     }
-
-    /**
-     * Creates the name tha should be displayed to the user
-     * EN -> Only for internal stuff
-     *
-     * @return string
-     */
-    public function generateDisplayName() 
-    {
-        return $this->type() . " " . $this->num();
-    }
     
-    public function shortName() {
-        if($this->isSpeed()) {
-            return $this->generateDisplayName();
-        }
-        return $this->getDistplayName();
-    }
-    
-    public function getDistplayName() {
-        if($this->display_name !== null) {
-            return $this->display_name;
-        }
-        return $this->generateDisplayName();
+    public function getDisplayName() {
+        return '$t(ui:'.$this->type().') ' . $this->num();
     }
 
     /**
@@ -136,13 +115,13 @@ class World extends CustomModel
          * de => Welt
          */
         if($this->isSpeed()){
-            return ucfirst(__('ui.world.speed'));
+            return 'world.speed';
         } elseif($this->isCasual()){
-            return ucfirst(__('ui.world.casual'));
+            return 'world.casual';
         } elseif($this->isNormalServer()){
-            return ucfirst(__('ui.world.normal'));
+            return 'world.world';
         } else{
-            return ucfirst(__('ui.world.classic'));
+            return 'world.classic';
         }
     }
     

@@ -28,7 +28,8 @@ class AllyAPIController extends Controller
         $allyChanges = AllyChange::allyAllyChangeCounts($worldData, $ally_id);
         
         BasicFunctions::abort_if_translated($allyData == null && $allyTopData == null, 404,
-                "404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally_id]);
+                "404.allyNotFound", ["world" => $worldData->getDisplayName(), "ally" => $ally_id,
+                "interpolation" => ["skipOnVariables" => false]]);
         return Response::json([
             "cur" => $allyData,
             "top" => $allyTopData,
@@ -84,7 +85,8 @@ class AllyAPIController extends Controller
         
         $allyData = Ally::ally($worldData, $ally_id);
         BasicFunctions::abort_if_translated($allyData == null, 404,
-                "404.allyNotFound", ["world" => $worldData->getDistplayName(), "ally" => $ally_id]);
+                "404.allyNotFound", ["world" => $worldData->getDisplayName(), "ally" => $ally_id,
+                "interpolation" => ["skipOnVariables" => false]]);
         
         $statsGeneral = ['points', 'rank', 'village'];
         $statsBash = ['gesBash', 'offBash', 'defBash'];

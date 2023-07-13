@@ -67,7 +67,7 @@ class DiscordNotificationQueueElement extends Model
     
     public static function worldUpdate(World $world, $file, $url) {
         \App::setLocale('de');
-        $worldName = $world->getDistplayName();
+        $worldName = $world->serName();
         $message = [
             'content' => '**'.$worldName."**: Update Error $file ($url)",
             'embed' => [
@@ -124,11 +124,12 @@ class DiscordNotificationQueueElement extends Model
             $color = 9807270;
         }
 
+        //TODO fix translations for this here
         $message = [
 //            'content' => 'Das Dorf ``['.$village->coordinates().']'.BasicFunctions::decodeName($village->name).'`` wurde geadelt um '.$input['date'].'. Alter Besitzer:``'.BasicFunctions::decodeName($old->name).'`` || Neuer Besitzer:``'.BasicFunctions::decodeName($new->name).'``',
             'content' => '',
             'embed' => [
-                'title' => $world->getDistplayName(),
+                'title' => $world->serName(),
                 'color' => $color,
                 'description' => 'Zeitpunkt: ``'.$time->format('d.m.Y H:i:s').'``',
                 'fields' => [

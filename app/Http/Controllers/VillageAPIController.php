@@ -19,7 +19,8 @@ class VillageAPIController extends Controller
 
         $villageData = Village::village($worldData, $village_id, true);
         BasicFunctions::abort_if_translated($villageData == null, 404,
-                "404.playerNotFound", ["world" => $worldData->getDistplayName(), "village" => $village_id]);
+                "404.villageNotFound", ["world" => $worldData->getDisplayName(), "village" => $village_id, 
+                "interpolation" => ["skipOnVariables" => false]]);
         
         $conquer = Conquer::villageConquerCounts($worldData, $village_id);
 
