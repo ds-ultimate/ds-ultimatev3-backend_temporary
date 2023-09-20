@@ -143,7 +143,7 @@ class PlayerAPIController extends Controller
         $player_id = (int) $player;
         $playerData = PlayerTop::player($world, $player_id);
         BasicFunctions::abort_if_translated($playerData == null, 404,
-                "404.playerNotFound", ["world" => $worldData->getDisplayName(), "player" => $player_id,
+                "404.playerNotFound", ["world" => $world->getDisplayName(), "player" => $player_id,
                 "interpolation" => ["skipOnVariables" => false]]);
         return Response::json([
             "top" => $playerData,

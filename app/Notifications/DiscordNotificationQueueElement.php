@@ -107,6 +107,40 @@ class DiscordNotificationQueueElement extends Model
         static::encodeMessage($message);
     }
     
+    public static function frontendException($eMessage, $name, $stack, $compStack, $url)
+    {
+        $stackStr = "Stack:\n";
+        $trace = explode('\n', $stack);
+        for($i = 0; $i < 10 && isset($trace[$i]); $i++) {
+            $stackStr .= "#{$trace[$i]}\n";
+        }
+        $traceStr =  mb_strimwidth($stackStr, 0, 500, "...");
+        
+        $compStr = "\n\nComponents:\n";
+        $trace = explode('\n', $compStack);
+        for($i = 0; $i < 10 && isset($trace[$i]); $i++) {
+            $compStr .= "#{$trace[$i]}\n";
+        }
+        $traceStr .= mb_strimwidth($compStr, 0, 300, "...");
+        
+        $traceStr .= "\n" . $url;
+        
+        $message = [
+            'content' => '``Frontend '.$name.'`` '.mb_strimwidth($eMessage, 0, 150, "..."),
+            'embed' => [
+                'title' => mb_strimwidth(nl2br($eMessage), 0, 200, "..."),
+                'description' => mb_strimwidth($traceStr, 0, 1000, "..."),
+                'color' => 13632027,
+                'timestamp' => Carbon::now()->format('c'),
+                'footer' => [
+                    'text' => '#ErrorException',
+                ],
+            ],
+        ];
+        
+        static::encodeMessage($message);
+    }
+    
     public static function conquere($user_id, $world, $conquerArr){
         \App::setLocale('de');
         $old = Player::player($world, $conquerArr['old_owner']);

@@ -11,7 +11,16 @@ class VerifyCsrfToken extends Middleware
      *
      * @var array<int, string>
      */
+    
+    /*
+     * This will be completeley deactivated in the future
+     * - Authentification will be handled via tokens (maybe selenium?)
+     * - deactivate Laravel session cookie completly
+     */
+    
     protected $except = [
-        //
+        "/error",
+        "/basicSearch",
+        "/extendedSearch",
     ];
 }

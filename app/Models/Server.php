@@ -88,6 +88,30 @@ class Server extends Model
      */
     public static function getWorlds(Server $server){
         $collect = $server->worlds;
+        foreach($collect as $w) {
+            //pretend we eager loaded server relationship
+            $w->setRelation("server", $server);
+        }
         return $collect->sortByDesc('id');
+    }
+
+    /**
+     * Returns all worlds of a given serverModel
+     *
+     * @param \App\Server $server
+     * @return Collection
+     */
+    public static function getActiveWorlds(Server $server){
+        $collect = $server->worlds;
+        $result = [];
+        foreach($collect->sortByDesc('id') as $w) {
+            if($w->active != true) {
+                continue;
+            }
+            //pretend we eager loaded server relationship
+            $w->setRelation("server", $server);
+            $result[] = $w;
+        }
+        return $result;
     }
 }
