@@ -19,7 +19,6 @@ class WorldResource extends CustomJsonResource
             "ally_count",
             "player_count",
             "village_count",
-            "active",
             "server__code",
             "url",
         ]), [
@@ -27,7 +26,8 @@ class WorldResource extends CustomJsonResource
             'hasUnits' => $this->units !== null,
             'hasBuildings' => $this->buildings !== null,
             'sortType' => $this->sortType(),
-            'maintenanceMode'=> $this->resource->maintananceMode
+            'maintenanceMode'=> $this->resource->maintananceMode,
+            "active" => $this->resource->activeEnum(),
         ]);
     }
 }

@@ -13,12 +13,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+Route::post('/error', [\App\Http\Controllers\ErrorController::class, 'report']);
+
 Route::get('/', [\App\Http\Controllers\WebController::class, 'index']);
 
-Route::get('/indexPage', [\App\Http\Controllers\ContentAPIController::class, 'index']);
-Route::get('/changelogPage', [\App\Http\Controllers\ContentAPIController::class, 'changelog']);
-
-Route::get('/serverGetWorlds/{server}', [\App\Http\Controllers\ContentAPIController::class, 'serverGetWorlds']);
+Route::get('/getNews', [\App\Http\Controllers\ContentAPIController::class, 'getNews']);
+Route::get('/getServers', [\App\Http\Controllers\ContentAPIController::class, 'getServers']);
+Route::get('/getChangelogs', [\App\Http\Controllers\ContentAPIController::class, 'getChangelogs']);
+Route::get('/getWorlds', [\App\Http\Controllers\ContentAPIController::class, 'getWorlds']);
 Route::get('/worldOverview/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldOverview']);
 Route::get('/worldExtendedData/{server}/{world}', [\App\Http\Controllers\ContentAPIController::class, 'worldExtendedData']);
 Route::get('/allyBasicData/{server}/{world}/{ally}', [\App\Http\Controllers\AllyAPIController::class, 'allyBasicData']);
@@ -27,6 +30,11 @@ Route::get('/playerBasicData/{server}/{world}/{player}', [\App\Http\Controllers\
 Route::get('/playerChartData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerChartData']);
 Route::get('/playerWorldPopup/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerWorldPopup']);
 Route::get('/villageBasicData/{server}/{world}/{player}', [\App\Http\Controllers\VillageAPIController::class, 'villageBasicData']);
+
+//Search
+Route::post('basicSearch', [\App\Http\Controllers\SearchController::class, 'search']);
+Route::post('extendedSearch', [\App\Http\Controllers\SearchController::class, 'extendedSearch']);
+
 
 //Datatables
 Route::get('/tables/worldAlly/{server}/{world}', [\App\Http\Controllers\DatatableController::class, 'worldAlly']);

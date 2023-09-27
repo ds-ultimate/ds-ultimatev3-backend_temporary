@@ -13,21 +13,24 @@ use Illuminate\Support\Facades\Response;
 
 class ContentAPIController extends Controller
 {
-    public function index(){
+    public function getServers() {
         $serverArray = Server::getServer(withWorldCount: true);
+        return Response::json($serverArray);
+    }
+
+    public function getNews(){
         $news = News::orderBy('order')->get();
-        return Response::json([
-            "servers" => $serverArray,
-            "news" => $news,
-        ]);
+        return Response::json($news);
     }
     
-    public function serverGetWorlds($server){
-        $server = Server::getAndCheckServerByCode($server, withWorlds: true);
-        return Response::json([
-            "server" => $server,
-            "worlds" => $server->worlds,
-        ]);
+    public function getChangelogs(){
+        $changelog = new Changelog();
+        return Response::json($changelog->orderBy("created_at", "DESC")->get());
+    }
+    
+    public function getWorlds(){
+        $worlds = World::with("server")->get();
+        return Response::json($worlds);
     }
     
     public function worldOverview($server, $world){
@@ -37,7 +40,6 @@ class ContentAPIController extends Controller
         $playerArray = Player::top10Player($worldData);
         $allyArray = Ally::top10Ally($worldData);
         return Response::json([
-            "world" => $worldData,
             "player" => $playerArray,
             "ally" => $allyArray,
         ]);
@@ -58,10 +60,5 @@ class ContentAPIController extends Controller
             "buildings" => $buildingConfig,
             "units" => $unitConfig,
         ], options: JSON_NUMERIC_CHECK);
-    }
-    
-    public function changelog(){
-        $changelog = new Changelog();
-        return Response::json($changelog->orderBy("created_at", "DESC")->get());
     }
 }

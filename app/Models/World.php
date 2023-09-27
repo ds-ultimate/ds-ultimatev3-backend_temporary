@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class World extends CustomModel
 {
     use SoftDeletes;
+    
+    public static $ACTIVE_INACTIVE = 0;
+    public static $ACTIVE_DISABLED = 1;
+    public static $ACTIVE_ACTIVE = 2;
 
     protected $connection = 'mysql';
     protected $table = 'worlds';
@@ -178,6 +182,15 @@ class World extends CustomModel
     
     public function database() {
         return $this->hasOne(WorldDatabase::class, 'id', 'database_id');
+    }
+    
+    public function activeEnum() {
+        if($this->active == null) {
+            return self::$ACTIVE_INACTIVE;
+        } else if($this->active) {
+            return self::$ACTIVE_ACTIVE;
+        }
+        return self::$ACTIVE_DISABLED;
     }
     
     public function toArray() {

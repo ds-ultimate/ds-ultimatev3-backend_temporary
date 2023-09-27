@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Request;
 class AllyChangeController extends Controller
 {
     private static $whitelist = ['created_at', 'player_name', 'new_ally_name', 'old_ally_name', 'points'];
+    private static $whitelist_search = ['ally_change.created_at', 'player.name', 'ally_old.name', 'ally_old.tag', 'ally_new.name', 'ally_new.tag', 'ally_change.points'];
     private static $conquerReturnValidate = [
         'filter' => 'array:p,oa,na',
         'filter.p' => 'numeric|integer',
@@ -83,7 +84,7 @@ class AllyChangeController extends Controller
 
         return DataTable::generate($dtQuery)
             ->setWhitelist(static::$whitelist)
-            ->setSearchWhitelist(static::$whitelist)
+            ->setSearchWhitelist(static::$whitelist_search)
             ->setFilter($filterCb)
             ->toJson();
     }
