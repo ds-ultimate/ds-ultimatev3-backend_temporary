@@ -29,7 +29,8 @@ Route::get('/allyChartData/{server}/{world}/{ally}', [\App\Http\Controllers\Ally
 Route::get('/playerBasicData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerBasicData']);
 Route::get('/playerChartData/{server}/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerChartData']);
 Route::get('/playerWorldPopup/{world}/{player}', [\App\Http\Controllers\PlayerAPIController::class, 'playerWorldPopup']);
-Route::get('/villageBasicData/{server}/{world}/{player}', [\App\Http\Controllers\VillageAPIController::class, 'villageBasicData']);
+Route::get('/villageBasicData/{server}/{world}/{village}', [\App\Http\Controllers\VillageAPIController::class, 'villageBasicData']);
+Route::get('/villageAllyDataXY/{server}/{world}/{x}/{y}', [\App\Http\Controllers\VillageAPIController::class, 'villageAllyDataXY']);
 
 //Search
 Route::post('basicSearch', [\App\Http\Controllers\SearchController::class, 'search']);

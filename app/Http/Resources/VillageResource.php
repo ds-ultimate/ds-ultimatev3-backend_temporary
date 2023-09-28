@@ -27,11 +27,14 @@ class VillageResource extends CustomJsonResource
             "owner",
             "bonus_id",
         ];
-        
+
         if($this->exportOwner) {
             $fields[] = "playerLatest__name";
+            $fields[] = "playerLatest__ally_id";
+            $fields[] = "playerLatest__allyLatest__name";
+            $fields[] = "playerLatest__allyLatest__tag";
         }
-        
+
         return $this->allowFields($fields);
     }
 }

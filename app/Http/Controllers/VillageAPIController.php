@@ -8,7 +8,10 @@ use App\Models\Village;
 use App\Models\World;
 use App\Util\BasicFunctions;
 use App\Util\Chart;
+use App\Http\Resources\VillageResource;
+
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Validator;
 
 class VillageAPIController extends Controller
 {
@@ -33,9 +36,24 @@ class VillageAPIController extends Controller
         }
         
         return Response::json([
-            "data" => $villageData, //TODO add owner information here
+            "data" => $villageData,
             "conquer" => $conquer,
             "history" => Chart::generateChart($datas, 'points'),
         ]);
+    }
+
+    public function villageAllyDataXY($server, $world, $x, $y){
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        $params = Validator::make(["x" => $x, "y" => $y], [
+            "x" => "integer|min:0|max:1000",
+            "y" => "integer|min:0|max:1000",
+        ])->validated();
+        
+        $villageModel = new Village($worldData);
+        $villageData = $villageModel->where(['x' => $params["x"], 'y' => $params["y"]])->first();
+        abort_if($villageData == null, 404);
+
+        return Response::json($villageData);
     }
 }
