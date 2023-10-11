@@ -26,7 +26,7 @@ git pull
 /opt/keyhelp/php/8.0/bin/php artisan view:clear
 
 # update database
-/opt/keyhelp/php/8.0/bin/php artisan migrate --force
+#/opt/keyhelp/php/8.0/bin/php artisan migrate --force
 	# --force		Required to run when in production.
 
 # stop maintenance mode
