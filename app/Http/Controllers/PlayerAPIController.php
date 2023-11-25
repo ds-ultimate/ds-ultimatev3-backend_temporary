@@ -135,7 +135,7 @@ class PlayerAPIController extends Controller
             ->setWhitelist([])
             ->setSearchWhitelist([])
             ->toJson(function($entry) {
-                return new VillageResource($entry, false);
+                return new VillageResource($entry, false, false);
             });
     }
     

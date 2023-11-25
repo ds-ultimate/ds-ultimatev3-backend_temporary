@@ -5,11 +5,14 @@ namespace App\Http\Resources;
 class VillageResource extends CustomJsonResource
 {
     private $exportOwner;
+    private $exportOwnerAlly;
     
-    public function __construct($resource, $exportOwner=true) {
+    public function __construct($resource, $exportOwner=true, $exportOwnerAlly=true) {
         parent::__construct($resource);
         $this->exportOwner = $exportOwner;
+        $this->exportOwnerAlly = $exportOwnerAlly;
     }
+
     /**
      * Transform the resource into an array.
      *
@@ -31,6 +34,9 @@ class VillageResource extends CustomJsonResource
         if($this->exportOwner) {
             $fields[] = "playerLatest__name";
             $fields[] = "playerLatest__ally_id";
+        }
+
+        if($this->exportOwnerAlly) {
             $fields[] = "playerLatest__allyLatest__name";
             $fields[] = "playerLatest__allyLatest__tag";
         }

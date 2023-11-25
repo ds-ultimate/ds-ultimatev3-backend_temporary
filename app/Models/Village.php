@@ -88,10 +88,17 @@ class Village extends CustomModel
         return $villageModel->find($village);
     }
     
-    public static function getJoinedQuery(World $world) {
+    public static function getJoinedQuery(World $world, $loadPlayers=false) {
         $v = new Village($world);
-        return $v->newQuery()
-                ->setEagerLoads([]);
+        if(!$loadPlayers) {
+            return $v->newQuery()
+                    ->setEagerLoads([]);
+        } else {
+            return $v->select(["village.*", "player.name as playerLatest__name", "player.ally_id as playerLatest__ally_id"])
+                ->from($v->getTable(), "village")
+                ->leftjoin($v->getRelativeTable("player_latest") . " as player", 'village.owner', '=', 'player.playerID')
+                    ->setEagerLoads([]);
+        }
     }
     
     public function toArray() {

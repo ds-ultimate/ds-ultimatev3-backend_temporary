@@ -54,6 +54,7 @@ Route::get('/tables/playerPlayerHistory/{server}/{world}/{player}', [\App\Http\C
 Route::get('/tables/playerConquer/{server}/{world}/{type}/{player}', [\App\Http\Controllers\ConquerController::class, 'playerConquer']);
 Route::get('/tables/playerAllyChange/{server}/{world}/{type}/{player}', [\App\Http\Controllers\AllyChangeController::class, 'playerAllyChange']);
 Route::get('/tables/villageConquer/{server}/{world}/{type}/{village}', [\App\Http\Controllers\ConquerController::class, 'villageConquer']);
+Route::get('/tables/allyPlayerVillageTable/{server}/{world}/{ally}', [\App\Http\Controllers\AllyAPIController::class, 'allyPlayerVillage']);
 
 //Select2
 Route::get('/select/village/{world}', [\App\Http\Controllers\SelectInputController::class, 'getSelect2Village']);

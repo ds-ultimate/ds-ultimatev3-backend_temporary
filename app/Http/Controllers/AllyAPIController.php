@@ -8,7 +8,9 @@ use App\Models\AllyChange;
 use App\Models\Conquer;
 use App\Models\Player;
 use App\Models\Server;
+use App\Models\Village;
 use App\Models\World;
+use App\Http\Resources\VillageResource;
 use App\Util\BasicFunctions;
 use App\Util\Chart;
 use App\Util\DataTable;
@@ -122,6 +124,10 @@ class AllyAPIController extends Controller
         $server = Server::getAndCheckServerByCode($server);
         $worldData = World::getAndCheckWorld($server, $world);
         $ally_id = (int) $ally;
+        //TODO return maybe 422 here for ally_id < 1?
+        BasicFunctions::abort_if_translated($ally_id < 1, 404,
+                "404.allyNotFound", ["world" => $worldData->getDisplayName(), "ally" => $ally_id,
+                "interpolation" => ["skipOnVariables" => false]]);
         
         $query = Player::getJoinedQuery($worldData);
         $query->where("ally_id", $ally_id);
@@ -131,5 +137,26 @@ class AllyAPIController extends Controller
             ->setWhitelist([])
             ->setSearchWhitelist([])
             ->toJson();
+    }
+    
+    public function allyPlayerVillage($server, $world, $ally){
+        $server = Server::getAndCheckServerByCode($server);
+        $worldData = World::getAndCheckWorld($server, $world);
+        $ally_id = (int) $ally;
+        //TODO return maybe 422 here for ally_id < 1?
+        BasicFunctions::abort_if_translated($ally_id < 1, 404,
+                "404.allyNotFound", ["world" => $worldData->getDisplayName(), "ally" => $ally_id,
+                "interpolation" => ["skipOnVariables" => false]]);
+        
+        $query = Village::getJoinedQuery($worldData, loadPlayers: True);
+        $query->where("player.ally_id", $ally_id);
+
+        return DataTable::generate($query)
+            ->clientSide()
+            ->setWhitelist([])
+            ->setSearchWhitelist([])
+            ->toJson(function($entry) {
+                return new VillageResource($entry, true, false);
+            });
     }
 }
