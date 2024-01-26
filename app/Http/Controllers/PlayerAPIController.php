@@ -100,7 +100,7 @@ class PlayerAPIController extends Controller
                 "timestamp" => time(),
                 "points" => $playerData->points,
                 "rank" => $playerData->rank,
-                "village" => $playerData->village,
+                "village" => $playerData->village_count,
                 "gesBash" => $playerData->gesBash,
                 "offBash" => $playerData->offBash,
                 "defBash" => $playerData->defBash,

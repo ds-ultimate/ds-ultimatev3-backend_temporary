@@ -99,7 +99,7 @@ class AllyAPIController extends Controller
                 "timestamp" => time(),
                 "points" => $allyData->points,
                 "rank" => $allyData->rank,
-                "village" => $allyData->village,
+                "village" => $allyData->village_count,
                 "gesBash" => $allyData->gesBash,
                 "offBash" => $allyData->offBash,
                 "defBash" => $allyData->defBash,
